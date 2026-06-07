@@ -53,39 +53,6 @@ export class SpaceService {
         return space.getValue()!;
     }
 
-    public static async use(name: string): Promise<TResult<ISpace, string>> {
-        // Find the new space
-        const newSpace: ISpace | undefined = await this.get(name);
-        if (newSpace === undefined) {
-            return Result.error(`No space with name '${name}' exists!`);
-        }
-
-        // Find active space
-        const activeSpace: ISpace | undefined = await this.getActive();
-        if (activeSpace !== undefined) {
-            if (activeSpace.space?.name === undefined) {
-                return Result.error(
-                    "No name present under '.space.name' in active workspace file",
-                );
-            }
-
-            // Backup the active space before overwriting it
-            const oldSpacePath: string | undefined = activeSpace.space?.path;
-            if (oldSpacePath === undefined) {
-                return Result.error(
-                    "Active workspace does not have a '.space.path' field",
-                );
-            }
-
-            await JsonService.save(oldSpacePath, activeSpace);
-        }
-
-        // Overwrite the active space file with the new space content
-        await JsonService.save(await this.getActivePath(), newSpace);
-
-        return Result.success(newSpace);
-    }
-
     public static async create(name: string): Promise<ISpace> {
         const config: IConfig = await ConfigService.get();
 
@@ -139,6 +106,39 @@ export class SpaceService {
         return generatedSpace;
     }
 
+    public static async use(name: string): Promise<TResult<ISpace, string>> {
+        // Find the new space
+        const newSpace: ISpace | undefined = await this.get(name);
+        if (newSpace === undefined) {
+            return Result.error(`No space with name '${name}' exists!`);
+        }
+
+        // Find active space
+        const activeSpace: ISpace | undefined = await this.getActive();
+        if (activeSpace !== undefined) {
+            if (activeSpace.space?.name === undefined) {
+                return Result.error(
+                    "No name present under '.space.name' in active workspace file",
+                );
+            }
+
+            // Backup the active space before overwriting it
+            const oldSpacePath: string | undefined = activeSpace.space?.path;
+            if (oldSpacePath === undefined) {
+                return Result.error(
+                    "Active workspace does not have a '.space.path' field",
+                );
+            }
+
+            await JsonService.save(oldSpacePath, activeSpace);
+        }
+
+        // Overwrite the active space file with the new space content
+        await JsonService.save(await this.getActivePath(), newSpace);
+
+        return Result.success(newSpace);
+    }
+
     public static async exists(name: string): Promise<boolean> {
         return (await this.get(name)) !== undefined;
     }
@@ -190,10 +190,46 @@ export class SpaceService {
                     space.space.path = spacePath;
                 }
 
+                // Ensure the updated defaults are persisted
+                JsonService.save(space.space.path, space);
+
                 spaces.push(space);
             }
         }
 
         return spaces;
+    }
+
+    public static async delete(
+        name: string,
+    ): Promise<TResult<boolean, string>> {
+        const space: ISpace | undefined = await this.get(name);
+
+        // Does the space exist?
+        if (space === undefined) {
+            LoggerService.warn(`Nothing to delete, '${name}' does not exist`);
+            return Result.success(false);
+        }
+
+        // Does the space have a path?
+        if (space.space?.path === undefined) {
+            return Result.error(`Space '${name}' does not have an associated '.space.path'`);
+        }
+
+        // Is the space active?
+        const activeSpace: ISpace | undefined = await this.getActive();
+        if (
+            activeSpace !== undefined &&
+            space.space?.path === activeSpace.space?.path
+        ) {
+            LoggerService.warn(
+                `Skipping deletion as the space '${name}' is currently active`,
+            );
+            return Result.success(false);
+        }
+
+        // Safe to delete
+        await FileService.delete(space.space.path);
+        return Result.success(true);
     }
 }
