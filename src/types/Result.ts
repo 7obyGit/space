@@ -17,6 +17,9 @@ export class Result<TSuccess, TError> {
                 `Attempted to create result with empty value (${value}) and error (${error})`,
             );
         }
+
+        this.value = value;
+        this.error = error;
     }
 
     public static success<TSuccess>(value: TSuccess): TSuccessResult<TSuccess> {

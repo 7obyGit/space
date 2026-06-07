@@ -64,6 +64,7 @@ export class ConfigService {
     private static async getConfigPaths(): Promise<TDirectoryPath[]> {
         const candidateConfigPaths: TDirectoryPath[] = PathService.getParents(
             PathService.getCurrentWorkingDirectory(),
+            { includeCurrentWorkingDirectory: true },
         ).map((path) => PathService.join(path, ".space/config.json"));
 
         const configPaths: TDirectoryPath[] = [];

@@ -18,6 +18,7 @@ export class SpaceService {
         // Generate candidate directories up to the root directory
         const candidatePaths: TDirectoryPath[] = PathService.getParents(
             PathService.getCurrentWorkingDirectory(),
+            { includeCurrentWorkingDirectory: true },
         ).flatMap((path) => [
             PathService.join(path, "spaces"),
             PathService.join(path, ".space/spaces"),
@@ -213,7 +214,9 @@ export class SpaceService {
 
         // Does the space have a path?
         if (space.space?.path === undefined) {
-            return Result.error(`Space '${name}' does not have an associated '.space.path'`);
+            return Result.error(
+                `Space '${name}' does not have an associated '.space.path'`,
+            );
         }
 
         // Is the space active?

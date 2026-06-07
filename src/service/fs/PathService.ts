@@ -37,7 +37,12 @@ export class PathService {
         return dirname(resolve(path));
     }
 
-    public static getParents(path: TPath): TDirectoryPath[] {
+    public static getParents(
+        path: TPath,
+        options: { includeCurrentWorkingDirectory: boolean } = {
+            includeCurrentWorkingDirectory: false,
+        },
+    ): TDirectoryPath[] {
         const parents: TDirectoryPath[] = [];
         let current: TPath = resolve(path);
 
@@ -46,10 +51,19 @@ export class PathService {
             parents.push(current);
         }
 
+        parents.reverse();
+
+        if (options.includeCurrentWorkingDirectory === true) {
+            parents.push(this.getCurrentWorkingDirectory());
+        }
+
         return parents;
     }
 
-    public static getName(path: TFilePath, extension?: TFileExtension): TFileName {
+    public static getName(
+        path: TFilePath,
+        extension?: TFileExtension,
+    ): TFileName {
         return basename(path, extension);
     }
 
