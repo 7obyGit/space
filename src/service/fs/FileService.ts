@@ -18,6 +18,8 @@ import type {
 
 export class FileService {
     public static async exists(path: TPath): Promise<boolean> {
+        path = PathService.toAbsolute(path);
+
         try {
             await stat(path);
             return true;
@@ -27,6 +29,8 @@ export class FileService {
     }
 
     public static async isFile(path: TFilePath): Promise<boolean> {
+        path = PathService.toAbsolute(path);
+
         try {
             const stats = await stat(path);
             return stats.isFile();
@@ -36,6 +40,8 @@ export class FileService {
     }
 
     public static async isDirectory(path: TDirectoryPath): Promise<boolean> {
+        path = PathService.toAbsolute(path);
+
         try {
             const stats = await stat(path);
             return stats.isDirectory();
@@ -45,6 +51,8 @@ export class FileService {
     }
 
     public static async isSymlink(path: TPath): Promise<boolean> {
+        path = PathService.toAbsolute(path);
+
         try {
             const stats = await lstat(path);
             return stats.isSymbolicLink();
@@ -56,6 +64,8 @@ export class FileService {
     public static async read(
         path: TFilePath,
     ): Promise<TResult<string, string>> {
+        path = PathService.toAbsolute(path);
+
         const parentDirectory: string = PathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
             await this.makeDirectory(parentDirectory);
@@ -74,6 +84,8 @@ export class FileService {
         path: TFilePath,
         content: string,
     ): Promise<TResult<void, string>> {
+        path = PathService.toAbsolute(path);
+
         const parentDirectory: string = PathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
             await this.makeDirectory(parentDirectory);
@@ -89,6 +101,8 @@ export class FileService {
     }
 
     public static async delete(path: TPath): Promise<TResult<void, string>> {
+        path = PathService.toAbsolute(path);
+
         try {
             await rm(path, { force: true, recursive: true });
             return Result.success(undefined);
@@ -102,6 +116,8 @@ export class FileService {
     public static async makeDirectory(
         path: TDirectoryPath,
     ): Promise<TResult<void, string>> {
+        path = PathService.toAbsolute(path);
+
         try {
             await mkdir(path, { recursive: true });
             return Result.success(undefined);
@@ -115,6 +131,8 @@ export class FileService {
     public static async listFiles(
         path: TDirectoryPath,
     ): Promise<TResult<TFilePath[], string>> {
+        path = PathService.toAbsolute(path);
+
         if ((await this.exists(path)) === false) {
             return Result.error(`Directory '${path}' does not exist`);
         }
@@ -135,6 +153,8 @@ export class FileService {
     public static async listDirectories(
         path: TDirectoryPath,
     ): Promise<TResult<TDirectoryPath[], string>> {
+        path = PathService.toAbsolute(path);
+
         if ((await this.exists(path)) === false) {
             return Result.error(`Directory '${path}' does not exist`);
         }
@@ -156,6 +176,9 @@ export class FileService {
         source: TPath,
         destination: TPath,
     ): Promise<TResult<void, string>> {
+        source = PathService.toAbsolute(source);
+        destination = PathService.toAbsolute(destination);
+
         if ((await this.exists(source)) === false) {
             return Result.error(`Source '${source}' does not exist`);
         }
