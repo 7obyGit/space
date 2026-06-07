@@ -17,6 +17,10 @@ import type {
 } from "../../types/PathTypes.js";
 
 export class PathService {
+    public static getCurrentWorkingDirectory(): TDirectoryPath {
+        return process.cwd();
+    }
+
     public static isAbsolute(path: TPath): boolean {
         return isAbsolute(path);
     }
@@ -31,6 +35,18 @@ export class PathService {
 
     public static getParent(path: TPath): TDirectoryPath {
         return dirname(resolve(path));
+    }
+
+    public static getParents(path: TPath): TDirectoryPath[] {
+        const parents: TDirectoryPath[] = [];
+        let current: TPath = resolve(path);
+
+        while (!this.isFileSystemRoot(current)) {
+            current = dirname(current);
+            parents.push(current);
+        }
+
+        return parents;
     }
 
     public static getName(path: TFilePath): TFileName {
