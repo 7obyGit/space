@@ -1,7 +1,8 @@
 import { readFile } from "node:fs";
 import { Result, TResult } from "../types/Result.js";
 import JSON5 from "json5";
-import { FileService, TPath } from "./FileService.js";
+import { FileService } from "./fs/FileService.js";
+import type { TPath } from "../types/PathTypes.js";
 
 export type IValidationResult = {
     valid: boolean;
