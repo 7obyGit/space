@@ -10,9 +10,9 @@ import { LoggerService } from "./LoggerService.js";
 export class ConfigService {
     private static config?: IConfig;
 
-    public static async getConfig(): Promise<IConfig> {
+    public static async get(): Promise<IConfig> {
         if (this.config === undefined) {
-            const result: TResult<IConfig, string> = await this.load();
+            const result: TResult<IConfig, string> = await this.build();
             if (result.isError()) {
                 throw new Error(`Failed to load config - ${result.getError()}`);
             }
@@ -27,7 +27,7 @@ export class ConfigService {
         return PathService.toAbsolute("~/.space/config.json");
     }
 
-    private static async load(): Promise<TResult<IConfig, string>> {
+    private static async build(): Promise<TResult<IConfig, string>> {
         // Locate all config
         const configPaths: TDirectoryPath[] = await this.getConfigPaths();
 
@@ -55,6 +55,9 @@ export class ConfigService {
             return Result.error(validationResult.getError()!);
         }
 
+        // Apply defaults
+        this.applyDefaults(config);
+
         return Result.success(config);
     }
 
@@ -78,7 +81,8 @@ export class ConfigService {
 
         const defaultConfig: IConfig = {
             version: await AppService.getVersion(),
-            view: { type: "Workspace File", path: "~/space.code-workspace" },
+            active: { path: "~/space.code-workspace" },
+            view: { type: "Workspace" },
         };
 
         await JsonService.save(userConfigPath, defaultConfig);
@@ -148,5 +152,19 @@ export class ConfigService {
         }
 
         return Result.success(config);
+    }
+
+    private static applyDefaults(config: IConfig): void {
+        if (config.active === undefined) {
+            config.active = {
+                path: "~/space.code-workspace",
+            };
+        }
+
+        if (config.view === undefined) {
+            config.view = {
+                type: "Workspace",
+            };
+        }
     }
 }

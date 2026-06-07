@@ -1,9 +1,11 @@
 {
-  "folders": [],
-  "extensions": {},
-  "settings": {},
-  "space": {
-    "name": "Example",
-    "attached-files": ["/abc/def.txt"],
-  },
+    "folders": [],
+    "extensions": {},
+    "settings": {},
+    "launch": {},
+    "space": {
+        "name": "Example",
+        "lastUpdated": "2026-06-07T09:58:59.917138",
+        "attachedFiles": ["/abc/def.txt"],
+    },
 }

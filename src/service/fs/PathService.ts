@@ -49,8 +49,8 @@ export class PathService {
         return parents;
     }
 
-    public static getName(path: TFilePath): TFileName {
-        return basename(path);
+    public static getName(path: TFilePath, extension?: TFileExtension): TFileName {
+        return basename(path, extension);
     }
 
     public static getExtension(path: TFilePath): TFileExtension {

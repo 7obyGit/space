@@ -18,3 +18,5 @@
 - `aw` integration
 - `space run ...` + `space env ...`? - something along the lines of support for env
 - Custom hooks, e.g. defined in workspace file a bit like "scripts" section of `package.json` -> support for running script on load of workspace, on close, etc
+- Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
+- `space init --view=workspace` command (first time setup with options)
