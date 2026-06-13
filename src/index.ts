@@ -7,3 +7,6 @@ console.log(config);
 
 console.log("\nAvailable spaces directories:");
 console.log(await SpaceService.getSpacesPaths());
+
+console.log("\nSpaces:");
+console.log(await SpaceService.list());

@@ -6,6 +6,9 @@
     "space": {
         "name": "Example",
         "lastUpdated": "2026-06-07T09:58:59.917138",
-        "attachedFiles": ["/abc/def.txt"],
-    },
+        "attachedFiles": [
+            "/abc/def.txt"
+        ],
+        "path": "/home/toby/Documents/repos/public/space/.space/spaces/example.code-workspace"
+    }
 }

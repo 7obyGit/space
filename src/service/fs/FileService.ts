@@ -141,7 +141,7 @@ export class FileService {
             const entries = await readdir(path, { withFileTypes: true });
             const files = entries
                 .filter((entry) => entry.isFile())
-                .map((entry) => entry.name);
+                .map((entry) => PathService.join(path, entry.name));
             return Result.success(files);
         } catch (error) {
             return Result.error(
@@ -163,7 +163,7 @@ export class FileService {
             const entries = await readdir(path, { withFileTypes: true });
             const directories = entries
                 .filter((entry) => entry.isDirectory())
-                .map((entry) => entry.name);
+                .map((entry) => PathService.join(path, entry.name));
             return Result.success(directories);
         } catch (error) {
             return Result.error(
