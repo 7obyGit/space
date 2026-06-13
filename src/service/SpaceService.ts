@@ -1,7 +1,7 @@
 import type { IConfig } from "../types/Config.js";
-import type { TDirectoryPath, TFilePath } from "../types/PathTypes.js";
+import type { TDirectoryPath, TFilePath, TPath } from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
-import type { ISpace } from "../types/Space.js";
+import type { ILoadedSpace, ISavedSpace } from "../types/Space.js";
 import { ConfigService } from "./ConfigService.js";
 import { FileService } from "./fs/FileService.js";
 import { PathService } from "./fs/PathService.js";
@@ -35,7 +35,7 @@ export class SpaceService {
         return spacesPaths;
     }
 
-    public static async getActive(): Promise<ISpace | undefined> {
+    public static async getActive(): Promise<ILoadedSpace | undefined> {
         const activePath: TFilePath = await this.getActivePath();
 
         if (!(await FileService.exists(activePath))) {
@@ -43,29 +43,30 @@ export class SpaceService {
             return undefined;
         }
 
-        const space: TResult<ISpace, string> =
+        const result: TResult<ISavedSpace, string> =
             await JsonService.load(activePath);
-        if (space.isError()) {
+        if (result.isError()) {
             throw new Error(
-                `Failed to load active space - ${space.getError()}`,
+                `Failed to load active space - ${result.getError()}`,
             );
         }
 
-        return space.getValue()!;
+        const space: ISavedSpace = result.getValue()!;
+        return this.toLoadedSpace(space, activePath);
     }
 
-    public static async create(name: string): Promise<ISpace> {
+    public static async create(name: string): Promise<ILoadedSpace> {
         const config: IConfig = await ConfigService.get();
 
         // Check if a space with the same name already exists
-        const existingSpace: ISpace | undefined = await this.get(name);
+        const existingSpace: ILoadedSpace | undefined = await this.get(name);
         if (existingSpace !== undefined) {
             LoggerService.warn(`Space '${name}' already exists`);
             return existingSpace;
         }
 
         // Ensure base directory exists
-        await FileService.makeDirectory("~/.space/spaces");
+        await FileService.createDirectory("~/.space/spaces");
 
         // Get the "most local" spaces directory to add to
         const spacesPath: TDirectoryPath | undefined = (
@@ -84,7 +85,7 @@ export class SpaceService {
         );
 
         // Generate the new space file
-        const spaceContent: ISpace = {
+        const spaceContent: ISavedSpace = {
             folders: [],
             settings: {
                 "window.title": `\${dirty}\${activeEditorShort} - ${name} (Space)`,
@@ -94,28 +95,39 @@ export class SpaceService {
             },
         };
 
+        // Ensure all default space values are set
+        this.toSavedSpace(spaceContent, spacePath);
+
         await JsonService.save(spacePath, spaceContent);
 
         // Ensure that the generated space can be located
-        const generatedSpace: ISpace | undefined = await this.get(name);
+        const generatedSpace: ILoadedSpace | undefined = await this.get(name);
         if (generatedSpace === undefined) {
             throw new Error(
                 `Failed to locate the generated space '${name}' after creation`,
             );
         }
 
+        if (generatedSpace.space.path !== spacePath) {
+            throw new Error(
+                `Generated space was not located at '${spacePath}'`,
+            );
+        }
+
         return generatedSpace;
     }
 
-    public static async use(name: string): Promise<TResult<ISpace, string>> {
+    public static async use(
+        name: string,
+    ): Promise<TResult<ILoadedSpace, string>> {
         // Find the new space
-        const newSpace: ISpace | undefined = await this.get(name);
+        const newSpace: ILoadedSpace | undefined = await this.get(name);
         if (newSpace === undefined) {
             return Result.error(`No space with name '${name}' exists!`);
         }
 
         // Find active space
-        const activeSpace: ISpace | undefined = await this.getActive();
+        const activeSpace: ILoadedSpace | undefined = await this.getActive();
         if (activeSpace !== undefined) {
             if (activeSpace.space?.name === undefined) {
                 return Result.error(
@@ -144,26 +156,26 @@ export class SpaceService {
         return (await this.get(name)) !== undefined;
     }
 
-    public static async get(name: string): Promise<ISpace | undefined> {
-        const spaces: ISpace[] = await this.list();
+    public static async get(name: string): Promise<ILoadedSpace | undefined> {
+        const spaces: ILoadedSpace[] = await this.list();
 
-        const space: ISpace | undefined = spaces.find(
-            (space: ISpace): boolean => space.space?.name === name,
+        const space: ILoadedSpace | undefined = spaces.find(
+            (space: ILoadedSpace): boolean => space.space?.name === name,
         );
 
         return space;
     }
 
-    public static async list(): Promise<ISpace[]> {
+    public static async list(): Promise<ILoadedSpace[]> {
         const spacesPaths: TDirectoryPath[] = await this.getSpacesPaths();
 
-        const spaces: ISpace[] = [];
+        const spaces: ILoadedSpace[] = [];
         for (const spacesPath of spacesPaths) {
             const spacePaths: TFilePath[] =
                 (await FileService.listFiles(spacesPath)).getValue() ?? [];
 
             for (const spacePath of spacePaths) {
-                const result: TResult<ISpace, string> =
+                const result: TResult<ISavedSpace, string> =
                     await JsonService.load(spacePath);
 
                 if (result.isError()) {
@@ -173,28 +185,21 @@ export class SpaceService {
                     continue;
                 }
 
-                const space: ISpace = result.getValue()!;
+                const savedSpace: ISavedSpace = result.getValue()!;
 
                 // Set default space config
-                if (space.space === undefined) {
-                    space.space = {};
-                }
-
-                if (space.space.name === undefined) {
-                    space.space.name = PathService.getName(
-                        spacePath,
-                        PathService.getExtension(spacePath),
-                    );
-                }
-
-                if (space.space.path === undefined) {
-                    space.space.path = spacePath;
-                }
+                this.toSavedSpace(savedSpace, spacePath);
 
                 // Ensure the updated defaults are persisted
-                JsonService.save(space.space.path, space);
+                JsonService.save(spacePath, savedSpace);
 
-                spaces.push(space);
+                // Convert to the loaded variant so the tool knows where it came from
+                const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+                    savedSpace,
+                    spacePath,
+                );
+
+                spaces.push(loadedSpace);
             }
         }
 
@@ -204,7 +209,7 @@ export class SpaceService {
     public static async delete(
         name: string,
     ): Promise<TResult<boolean, string>> {
-        const space: ISpace | undefined = await this.get(name);
+        const space: ILoadedSpace | undefined = await this.get(name);
 
         // Does the space exist?
         if (space === undefined) {
@@ -220,7 +225,7 @@ export class SpaceService {
         }
 
         // Is the space active?
-        const activeSpace: ISpace | undefined = await this.getActive();
+        const activeSpace: ILoadedSpace | undefined = await this.getActive();
         if (
             activeSpace !== undefined &&
             space.space?.path === activeSpace.space?.path
@@ -234,5 +239,46 @@ export class SpaceService {
         // Safe to delete
         await FileService.delete(space.space.path);
         return Result.success(true);
+    }
+
+    private static async save(space: ILoadedSpace): Promise<void> {
+        //TODO
+    }
+
+    private static toSavedSpace(
+        space: ILoadedSpace | ISavedSpace,
+        path: TFilePath,
+    ): ISavedSpace {
+        if (space.space === undefined) {
+            space.space = {};
+        }
+
+        if (space.space.name === undefined) {
+            space.space.name = PathService.getName(
+                path,
+                PathService.getExtension(path),
+            );
+        }
+
+        if (space.space.path !== undefined) {
+            space.space.path = undefined;
+        }
+
+        return space;
+    }
+
+    private static toLoadedSpace(
+        space: ISavedSpace,
+        path: TFilePath,
+    ): ILoadedSpace {
+        this.toSavedSpace(space, path);
+
+        // The path to the saved space is required when a space is active, as this
+        // enables `space` to know where to save the active space to
+        if (space?.space !== undefined && space?.space?.path === undefined) {
+            space.space.path = path;
+        }
+
+        return space as ILoadedSpace;
     }
 }

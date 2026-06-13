@@ -68,7 +68,7 @@ export class FileService {
 
         const parentDirectory: string = PathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
-            await this.makeDirectory(parentDirectory);
+            await this.createDirectory(parentDirectory);
         }
 
         try {
@@ -88,7 +88,7 @@ export class FileService {
 
         const parentDirectory: string = PathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
-            await this.makeDirectory(parentDirectory);
+            await this.createDirectory(parentDirectory);
         }
 
         try {
@@ -113,7 +113,7 @@ export class FileService {
         }
     }
 
-    public static async makeDirectory(
+    public static async createDirectory(
         path: TDirectoryPath,
     ): Promise<TResult<void, string>> {
         path = PathService.toAbsolute(path);
@@ -186,7 +186,7 @@ export class FileService {
         const destinationParent: TDirectoryPath =
             PathService.getParent(destination);
         if (await this.exists(destinationParent)) {
-            await this.makeDirectory(destinationParent);
+            await this.createDirectory(destinationParent);
         }
 
         try {

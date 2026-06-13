@@ -10,3 +10,6 @@ console.log(await SpaceService.getSpacesPaths());
 
 console.log("\nSpaces:");
 console.log(await SpaceService.list());
+
+console.log("\nActive Space:");
+console.log(await SpaceService.getActive());

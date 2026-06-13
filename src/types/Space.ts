@@ -1,11 +1,20 @@
 import type { TFilePath } from "./PathTypes.js";
 
-export interface ISpace extends IVSCodeWorkspace {
+export interface ISavedSpace extends IVSCodeWorkspace {
     space?: {
         name?: string;
         path?: string;
         lastUpdated?: string;
         attachedFiles?: TFilePath[];
+    };
+}
+
+export interface ILoadedSpace extends IVSCodeWorkspace {
+    space: {
+        name: string;
+        path: string;
+        lastUpdated: string;
+        attachedFiles: TFilePath[];
     };
 }
 
