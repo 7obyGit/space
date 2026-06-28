@@ -21,7 +21,7 @@ export interface ILoadedSpace extends IVSCodeWorkspace {
 }
 
 export interface ISpaceEnv {
-    [key: string]: string | { cmd: string };
+    [key: string]: string | { command: string };
 }
 
 /**

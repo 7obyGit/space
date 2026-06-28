@@ -9,21 +9,29 @@
     "launch": {},
     "space": {
         "name": "Example",
-        "lastUpdated": "2026-06-07T09:58:59.917138",
+        "lastUpdated": "2026-06-28T18:50:07.221Z",
         "attachedFiles": [
             "/abc/def.txt"
         ],
         "env": {
             "EXAMPLE_KEY": "EXAMPLE_VALUE",
             "EXAMPLE_GENERATED": {
-                "cmd": "echo 'Hello world!'"
+                "command": "echo 'Hello world!'"
             }
         },
         "scripts": {
-            "open": { "cmd": "echo 'I run when you switch to this space'" },
-            "close": { "pre-cmd": "echo 'I run just before you switch to a different space'" },
-            "install": { "post-cmd": "echo 'I run when you run space install, after the install'" },
-            "example": { "cmd": "echo 'I run when you run space run example'"
+            "open": {
+                "post-command": "echo 'I run when you switch to this space'; space run install"
+            },
+            "close": {
+                "pre-command": "echo 'I run just before you switch to a different space'"
+            },
+            "install": {
+                "post-command": "echo 'I run when you run space install, after the install'"
+            },
+            "example": {
+                "command": "echo 'I run when you run space run example'"
+            }
         }
     }
 }

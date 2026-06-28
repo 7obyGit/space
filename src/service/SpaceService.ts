@@ -378,8 +378,8 @@ export class SpaceService {
         for (const [key, value] of Object.entries(env)) {
             if (typeof value === "string") {
                 resolvedEnv[key] = value;
-            } else if (typeof value === "object" && value !== null && "cmd" in value) {
-                const result = await this.terminalService.run(value.cmd);
+            } else if (typeof value === "object" && value !== null && "command" in value) {
+                const result = await this.terminalService.run(value.command);
                 if (result.isSuccess()) {
                     const terminalResult = result.getValue()!;
                     if (terminalResult.exitCode === 0) {
