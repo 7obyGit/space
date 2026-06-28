@@ -191,6 +191,11 @@ export class SpaceService {
                 activeSpace,
                 oldSpacePath as TFilePath,
             );
+
+            if (savedActiveSpace.space === undefined) {
+                savedActiveSpace.space = {};
+            }
+
             savedActiveSpace.space.lastUpdated = new Date().toISOString();
             await this.jsonService.save(oldSpacePath, savedActiveSpace);
         }
