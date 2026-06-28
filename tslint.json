@@ -6,7 +6,6 @@
     "jsRules": {},
     "rules": {
         "object-literal-sort-keys": false,
-        "no-shadowed-variable": false,
         "member-ordering": false,
         "no-empty": false
     },

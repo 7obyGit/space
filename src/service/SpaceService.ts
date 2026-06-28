@@ -175,7 +175,7 @@ export class SpaceService {
         const spaces: ILoadedSpace[] = await this.list();
 
         const space: ILoadedSpace | undefined = spaces.find(
-            (space: ILoadedSpace): boolean => space.space?.name === name,
+            (s: ILoadedSpace): boolean => s.space?.name === name,
         );
 
         return space;

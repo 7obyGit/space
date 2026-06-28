@@ -1,6 +1,6 @@
 import { readlink, realpath, symlink } from "node:fs/promises";
 import { singleton } from "tsyringe";
-import type { TPath, ISymlink } from "../../types/PathTypes.js";
+import type { ISymlink, TPath } from "../../types/PathTypes.js";
 import { Result, type TResult } from "../../types/Result.js";
 
 @singleton()

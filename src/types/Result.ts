@@ -4,8 +4,8 @@ export type TResult<TSuccess, TError> =
     | TSuccessResult<TSuccess>
     | TErrorResult<TError>;
 
-export type TSuccessHandler<TSuccess, TResult> = (value: TSuccess) => TResult;
-export type TErrorHandler<TError, TResult> = (error: TError) => TResult;
+export type TSuccessHandler<TSuccess, TOutput> = (value: TSuccess) => TOutput;
+export type TErrorHandler<TError, TOutput> = (error: TError) => TOutput;
 
 export class Result<TSuccess, TError> {
 
