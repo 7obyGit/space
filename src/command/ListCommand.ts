@@ -33,18 +33,17 @@ export class ListCommand extends BaseCommand {
             return;
         }
 
-        let table = "| | Name | Path |\n";
-        table += "| --- | --- | --- |\n";
+        let table = "| Name | Path |\n";
+        table += "| --- | --- |\n";
 
         spaces.forEach((space) => {
             const isActive = active && space.space.name === active.space.name;
-            const icon = isActive ? chalk.yellow("●") : chalk.gray("○");
             const name = isActive
-                ? chalk.bold(space.space.name)
+                ? chalk.yellow.bold(`* ${space.space.name}`)
                 : space.space.name;
             const displayPath = this.pathService.formatDisplayPath(space.space.path);
 
-            table += `| ${icon} | ${chalk.green(name)} | ${chalk.cyan(displayPath)} |\n`;
+            table += `| ${chalk.green(name)} | ${chalk.cyan(displayPath)} |\n`;
         });
 
         this.loggerService.info(table);
