@@ -2,8 +2,8 @@ import chalk from "chalk";
 import { Command as BaseCommand, Option } from "clipanion";
 import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
-import { SpaceService } from "../service/SpaceService.js";
 import { LoggerService } from "../service/LoggerService.js";
+import { SpaceService } from "../service/SpaceService.js";
 
 @Command("use", "Switch to a different workspace")
 @singleton()
