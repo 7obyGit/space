@@ -95,6 +95,52 @@ describe("FileService", () => {
             expect(result.isSuccess()).toBe(true);
             expect(fs.writeFile).toHaveBeenCalledWith("test.txt", "content", "utf8");
         });
+
+        it("should return error on write failure", async () => {
+            (fs.stat as any).mockResolvedValue({});
+            (fs.writeFile as any).mockRejectedValue(new Error("Write failed"));
+            
+            const result = await fileService.write("test.txt", "content");
+            
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("Write failed");
+        });
+    });
+
+    describe("copy", () => {
+        it("should copy file on success", async () => {
+            (fs.stat as any).mockResolvedValue({}); // source and destination parent exist
+            (fs.cp as any).mockResolvedValue(undefined);
+            
+            const result = await fileService.copy("src", "dest");
+            
+            expect(result.isSuccess()).toBe(true);
+            expect(fs.cp).toHaveBeenCalledWith("src", "dest", { recursive: true });
+        });
+
+        it("should return error if source does not exist", async () => {
+            (fs.stat as any).mockRejectedValue(new Error("Not found"));
+            
+            const result = await fileService.copy("src", "dest");
+            
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("Source 'src' does not exist");
+        });
+    });
+
+    describe("delete", () => {
+        it("should delete path on success", async () => {
+            (fs.rm as any).mockResolvedValue(undefined);
+            const result = await fileService.delete("path");
+            expect(result.isSuccess()).toBe(true);
+        });
+
+        it("should return error on delete failure", async () => {
+            (fs.rm as any).mockRejectedValue(new Error("Delete failed"));
+            const result = await fileService.delete("path");
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("Delete failed");
+        });
     });
 
     describe("listFiles", () => {

@@ -85,6 +85,16 @@ describe("JsonService", () => {
             expect(result.isSuccess()).toBe(true);
             expect(result.getValue()).toBe(JSON.stringify(obj, null, 4));
         });
+
+        it("should return error for circular reference", () => {
+            const obj: any = { a: 1 };
+            obj.self = obj;
+            
+            const result = jsonService.stringify(obj);
+            
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("Failed to stringify");
+        });
     });
 
     describe("save", () => {

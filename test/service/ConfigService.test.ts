@@ -82,4 +82,66 @@ describe("ConfigService", () => {
             expect(mockJsonService.save).toHaveBeenCalled();
         });
     });
+
+    describe("deepMergeObjects", () => {
+        it("should merge simple objects", () => {
+            const obj1 = { a: 1, b: 2 };
+            const obj2 = { b: 3, c: 4 };
+            const result = (configService as any).deepMergeObjects([obj1, obj2]);
+            expect(result).toEqual({ a: 1, b: 3, c: 4 });
+        });
+
+        it("should merge nested objects", () => {
+            const obj1 = { a: { b: 1 } };
+            const obj2 = { a: { c: 2 } };
+            const result = (configService as any).deepMergeObjects([obj1, obj2]);
+            expect(result).toEqual({ a: { b: 1, c: 2 } });
+        });
+
+        it("should concatenate arrays", () => {
+            const obj1 = { a: [1] };
+            const obj2 = { a: [2] };
+            const result = (configService as any).deepMergeObjects([obj1, obj2]);
+            expect(result).toEqual({ a: [1, 2] });
+        });
+
+        it("should handle null and undefined", () => {
+            const obj1 = { a: 1 };
+            const obj2 = { a: undefined, b: 2 };
+            const obj3 = null;
+            const result = (configService as any).deepMergeObjects([obj1, obj2, obj3]);
+            expect(result).toEqual({ a: 1, b: 2 });
+        });
+
+        it("should overwrite with non-object values", () => {
+            const obj1 = { a: { b: 1 } };
+            const obj2 = { a: 2 };
+            const result = (configService as any).deepMergeObjects([obj1, obj2]);
+            expect(result).toEqual({ a: 2 });
+        });
+    });
+
+    describe("validate", () => {
+        it("should return error if version is missing", () => {
+            const config = { view: { type: "Workspace" } } as any;
+            const result = (configService as any).validate(config);
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("No version specified");
+        });
+
+        it("should return error if view is missing", () => {
+            const config = { version: "1.0.0" } as any;
+            const result = (configService as any).validate(config);
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("No view mode specified");
+        });
+
+        it("should return multiple errors", () => {
+            const config = {} as any;
+            const result = (configService as any).validate(config);
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("No version specified");
+            expect(result.getError()).toContain("No view mode specified");
+        });
+    });
 });

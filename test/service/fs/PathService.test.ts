@@ -80,6 +80,12 @@ describe("PathService", () => {
             expect(parents).toContain(resolve("/a/b"));
         });
 
+        it("should return empty array for root directory", () => {
+            const path = "/";
+            const parents = pathService.getParents(path);
+            expect(parents).toEqual([]);
+        });
+
         it("should include CWD if requested", () => {
             const path = "/tmp";
             const parents = pathService.getParents(path, { includeCurrentWorkingDirectory: true });
@@ -110,6 +116,10 @@ describe("PathService", () => {
 
         it("should expand home if it's the first segment", () => {
             expect(pathService.join("~", "test")).toBe(join(homedir(), "test"));
+        });
+
+        it("should not expand home if it's not the first segment", () => {
+            expect(pathService.join("test", "~")).toBe(join("test", "~"));
         });
     });
 });

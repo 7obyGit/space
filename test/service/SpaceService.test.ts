@@ -83,5 +83,80 @@ describe("SpaceService", () => {
             expect(space.space.name).toBe("new");
             expect(mockJsonService.save).toHaveBeenCalled();
         });
+
+        it("should return existing space if it already exists", async () => {
+            mockPathService.getParents.mockReturnValue(["/cwd"]);
+            mockFileService.exists.mockResolvedValue(true);
+            mockFileService.listFiles.mockResolvedValue(Result.success(["existing.code-workspace"]));
+            mockJsonService.load.mockResolvedValue(Result.success({ space: { name: "existing" } }));
+
+            const space = await spaceService.create("existing");
+            
+            expect(space.space.name).toBe("existing");
+            expect(mockLoggerService.warn).toHaveBeenCalledWith(expect.stringContaining("already exists"));
+        });
+    });
+
+    describe("use", () => {
+        it("should switch to a new space", async () => {
+            const activePath = "/active/path";
+            const newPath = "/path/new";
+            const newSpace = { space: { name: "new", path: newPath } };
+            const oldSpace = { space: { name: "old", path: "/path/old" } };
+            
+            vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
+            vi.spyOn(spaceService, "getActive").mockResolvedValue(oldSpace as any);
+            mockConfigService.get.mockResolvedValue({ active: { path: activePath } });
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.use("new");
+            
+            expect(result.isSuccess()).toBe(true);
+            expect(mockJsonService.save).toHaveBeenCalledWith(activePath, expect.anything());
+        });
+
+        it("should return error if new space does not exist", async () => {
+            vi.spyOn(spaceService, "get").mockResolvedValue(undefined);
+            const result = await spaceService.use("missing");
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("No space with name 'missing' exists");
+        });
+
+        it("should return error if active space has no name", async () => {
+            const newSpace = { space: { name: "new", path: "/path/new" } };
+            const oldSpace = { space: { path: "/path/old" } }; // Missing name
+            
+            vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
+            vi.spyOn(spaceService, "getActive").mockResolvedValue(oldSpace as any);
+            
+            const result = await spaceService.use("new");
+            
+            expect(result.isError()).toBe(true);
+            expect(result.getError()).toContain("No name present");
+        });
+    });
+
+    describe("delete", () => {
+        it("should return success false if space doesn't exist", async () => {
+            mockPathService.getParents.mockReturnValue(["/cwd"]);
+            const result = await spaceService.delete("missing");
+            expect(result.isSuccess()).toBe(true);
+            expect(result.getValue()).toBe(false);
+        });
+
+        it("should return success false if space is active", async () => {
+            const activePath = "/cwd/spaces/active.code-workspace";
+            mockConfigService.get.mockResolvedValue({ active: { path: activePath } });
+            mockPathService.getParents.mockReturnValue(["/cwd"]);
+            mockFileService.exists.mockResolvedValue(true);
+            mockFileService.listFiles.mockResolvedValue(Result.success([activePath]));
+            mockJsonService.load.mockResolvedValue(Result.success({ space: { name: "active" } }));
+
+            const result = await spaceService.delete("active");
+            
+            expect(result.isSuccess()).toBe(true);
+            expect(result.getValue()).toBe(false);
+            expect(mockLoggerService.warn).toHaveBeenCalledWith(expect.stringContaining("currently active"));
+        });
     });
 });
