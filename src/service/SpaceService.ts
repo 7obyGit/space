@@ -186,7 +186,11 @@ export class SpaceService {
                 );
             }
 
-            await this.jsonService.save(oldSpacePath, activeSpace);
+            const savedActiveSpace = this.toSavedSpace(
+                activeSpace,
+                oldSpacePath as TFilePath,
+            );
+            await this.jsonService.save(oldSpacePath, savedActiveSpace);
         }
 
         // Sync attached files for the new space
@@ -473,6 +477,12 @@ export class SpaceService {
     ): ISavedSpace {
         const savedSpace: ISavedSpace = structuredClone(loadedSpace);
 
+        if (savedSpace.folders) {
+            savedSpace.folders = savedSpace.folders.filter(
+                (f) => (f as any).name !== "Attached Files",
+            );
+        }
+
         if (savedSpace.space === undefined) {
             savedSpace.space = {};
         }
@@ -485,7 +495,7 @@ export class SpaceService {
         }
 
         if (savedSpace.space.path !== undefined) {
-            savedSpace.space.path = undefined;
+            delete savedSpace.space.path;
         }
 
         if (savedSpace.space.env === undefined) {

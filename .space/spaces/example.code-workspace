@@ -2,10 +2,6 @@
     "folders": [
         {
             "path": "/home/toby/Documents/repos/public/space"
-        },
-        {
-            "path": "/tmp/space/Example",
-            "name": "Attached Files"
         }
     ],
     "extensions": {},
@@ -22,7 +18,6 @@
             "EXAMPLE_GENERATED": {
                 "cmd": "echo 'Hello world!'"
             }
-        },
-        "path": "/home/toby/Documents/repos/public/space/.space/spaces/example.code-workspace"
+        }
     }
 }
