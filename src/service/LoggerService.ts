@@ -32,6 +32,11 @@ export class LoggerService {
         return `${header}\n${this.render(markdown)}`;
     }
 
+    public log(content: string): void {
+        // tslint:disable-next-line:no-console
+        console.log(content);
+    }
+
     public debug(content: any): void {
         const message =
             typeof content === "string"

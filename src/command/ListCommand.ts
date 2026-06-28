@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Command as BaseCommand } from "clipanion";
+import { Command as BaseCommand, Option } from "clipanion";
 import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
 import { LoggerService } from "../service/LoggerService.js";
@@ -11,9 +11,18 @@ export class ListCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
 
+    public json = Option.Boolean("--json", false, {
+        description: "Output the data as JSON",
+    });
+
     public async execute() {
         const spaces = await this.spaceService.list();
         const active = await this.spaceService.getActive();
+
+        if (this.json) {
+            this.loggerService.log(JSON.stringify(spaces, null, 2));
+            return;
+        }
 
         this.loggerService.info(chalk.cyan.bold("\n🚀  Available Spaces\n"));
 
