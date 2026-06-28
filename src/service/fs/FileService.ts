@@ -1,3 +1,4 @@
+import { singleton, inject } from "tsyringe";
 import {
     cp,
     lstat,
@@ -16,9 +17,12 @@ import type {
     TDirectoryPath,
 } from "../../types/PathTypes.js";
 
+@singleton()
 export class FileService {
-    public static async exists(path: TPath): Promise<boolean> {
-        path = PathService.toAbsolute(path);
+    constructor(@inject(PathService) private pathService: PathService) {}
+
+    public async exists(path: TPath): Promise<boolean> {
+        path = this.pathService.toAbsolute(path);
 
         try {
             await stat(path);
@@ -28,8 +32,8 @@ export class FileService {
         }
     }
 
-    public static async isFile(path: TFilePath): Promise<boolean> {
-        path = PathService.toAbsolute(path);
+    public async isFile(path: TFilePath): Promise<boolean> {
+        path = this.pathService.toAbsolute(path);
 
         try {
             const stats = await stat(path);
@@ -39,8 +43,8 @@ export class FileService {
         }
     }
 
-    public static async isDirectory(path: TDirectoryPath): Promise<boolean> {
-        path = PathService.toAbsolute(path);
+    public async isDirectory(path: TDirectoryPath): Promise<boolean> {
+        path = this.pathService.toAbsolute(path);
 
         try {
             const stats = await stat(path);
@@ -50,8 +54,8 @@ export class FileService {
         }
     }
 
-    public static async isSymlink(path: TPath): Promise<boolean> {
-        path = PathService.toAbsolute(path);
+    public async isSymlink(path: TPath): Promise<boolean> {
+        path = this.pathService.toAbsolute(path);
 
         try {
             const stats = await lstat(path);
@@ -61,12 +65,12 @@ export class FileService {
         }
     }
 
-    public static async read(
+    public async read(
         path: TFilePath,
     ): Promise<TResult<string, string>> {
-        path = PathService.toAbsolute(path);
+        path = this.pathService.toAbsolute(path);
 
-        const parentDirectory: string = PathService.getParent(path);
+        const parentDirectory: string = this.pathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
             await this.createDirectory(parentDirectory);
         }
@@ -80,13 +84,13 @@ export class FileService {
         }
     }
 
-    public static async write(
+    public async write(
         path: TFilePath,
         content: string,
     ): Promise<TResult<void, string>> {
-        path = PathService.toAbsolute(path);
+        path = this.pathService.toAbsolute(path);
 
-        const parentDirectory: string = PathService.getParent(path);
+        const parentDirectory: string = this.pathService.getParent(path);
         if ((await this.exists(parentDirectory)) === false) {
             await this.createDirectory(parentDirectory);
         }
@@ -100,8 +104,8 @@ export class FileService {
         }
     }
 
-    public static async delete(path: TPath): Promise<TResult<void, string>> {
-        path = PathService.toAbsolute(path);
+    public async delete(path: TPath): Promise<TResult<void, string>> {
+        path = this.pathService.toAbsolute(path);
 
         try {
             await rm(path, { force: true, recursive: true });
@@ -113,10 +117,10 @@ export class FileService {
         }
     }
 
-    public static async createDirectory(
+    public async createDirectory(
         path: TDirectoryPath,
     ): Promise<TResult<void, string>> {
-        path = PathService.toAbsolute(path);
+        path = this.pathService.toAbsolute(path);
 
         try {
             await mkdir(path, { recursive: true });
@@ -128,10 +132,10 @@ export class FileService {
         }
     }
 
-    public static async listFiles(
+    public async listFiles(
         path: TDirectoryPath,
     ): Promise<TResult<TFilePath[], string>> {
-        path = PathService.toAbsolute(path);
+        path = this.pathService.toAbsolute(path);
 
         if ((await this.exists(path)) === false) {
             return Result.error(`Directory '${path}' does not exist`);
@@ -141,7 +145,7 @@ export class FileService {
             const entries = await readdir(path, { withFileTypes: true });
             const files = entries
                 .filter((entry) => entry.isFile())
-                .map((entry) => PathService.join(path, entry.name));
+                .map((entry) => this.pathService.join(path, entry.name));
             return Result.success(files);
         } catch (error) {
             return Result.error(
@@ -150,10 +154,10 @@ export class FileService {
         }
     }
 
-    public static async listDirectories(
+    public async listDirectories(
         path: TDirectoryPath,
     ): Promise<TResult<TDirectoryPath[], string>> {
-        path = PathService.toAbsolute(path);
+        path = this.pathService.toAbsolute(path);
 
         if ((await this.exists(path)) === false) {
             return Result.error(`Directory '${path}' does not exist`);
@@ -163,7 +167,7 @@ export class FileService {
             const entries = await readdir(path, { withFileTypes: true });
             const directories = entries
                 .filter((entry) => entry.isDirectory())
-                .map((entry) => PathService.join(path, entry.name));
+                .map((entry) => this.pathService.join(path, entry.name));
             return Result.success(directories);
         } catch (error) {
             return Result.error(
@@ -172,19 +176,19 @@ export class FileService {
         }
     }
 
-    public static async copy(
+    public async copy(
         source: TPath,
         destination: TPath,
     ): Promise<TResult<void, string>> {
-        source = PathService.toAbsolute(source);
-        destination = PathService.toAbsolute(destination);
+        source = this.pathService.toAbsolute(source);
+        destination = this.pathService.toAbsolute(destination);
 
         if ((await this.exists(source)) === false) {
             return Result.error(`Source '${source}' does not exist`);
         }
 
         const destinationParent: TDirectoryPath =
-            PathService.getParent(destination);
+            this.pathService.getParent(destination);
         if (await this.exists(destinationParent)) {
             await this.createDirectory(destinationParent);
         }

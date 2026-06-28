@@ -1,3 +1,4 @@
+import { singleton, inject } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import type { TDirectoryPath } from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
@@ -7,10 +8,19 @@ import { PathService } from "./fs/PathService.js";
 import { JsonService } from "./JsonService.js";
 import { LoggerService } from "./LoggerService.js";
 
+@singleton()
 export class ConfigService {
-    private static config?: IConfig;
+    private config?: IConfig;
 
-    public static async get(): Promise<IConfig> {
+    constructor(
+        @inject(AppService) private appService: AppService,
+        @inject(FileService) private fileService: FileService,
+        @inject(PathService) private pathService: PathService,
+        @inject(JsonService) private jsonService: JsonService,
+        @inject(LoggerService) private loggerService: LoggerService,
+    ) {}
+
+    public async get(): Promise<IConfig> {
         if (this.config === undefined) {
             const result: TResult<IConfig, string> = await this.build();
             if (result.isError()) {
@@ -23,17 +33,17 @@ export class ConfigService {
         return this.config;
     }
 
-    private static getUserConfigPath(): string {
-        return PathService.toAbsolute("~/.space/config.json");
+    private getUserConfigPath(): string {
+        return this.pathService.toAbsolute("~/.space/config.json");
     }
 
-    private static async build(): Promise<TResult<IConfig, string>> {
+    private async build(): Promise<TResult<IConfig, string>> {
         // Locate all config
         const configPaths: TDirectoryPath[] = await this.getConfigPaths();
 
         // If no locations found, generate default config
         if (configPaths.length === 0) {
-            this.createDefaultConfig();
+            await this.createDefaultConfig();
             configPaths.push(this.getUserConfigPath());
         }
 
@@ -61,15 +71,15 @@ export class ConfigService {
         return Result.success(config);
     }
 
-    private static async getConfigPaths(): Promise<TDirectoryPath[]> {
-        const candidateConfigPaths: TDirectoryPath[] = PathService.getParents(
-            PathService.getCurrentWorkingDirectory(),
+    private async getConfigPaths(): Promise<TDirectoryPath[]> {
+        const candidateConfigPaths: TDirectoryPath[] = this.pathService.getParents(
+            this.pathService.getCurrentWorkingDirectory(),
             { includeCurrentWorkingDirectory: true },
-        ).map((path) => PathService.join(path, ".space/config.json"));
+        ).map((path) => this.pathService.join(path, ".space/config.json"));
 
         const configPaths: TDirectoryPath[] = [];
         for (const candidatePath of candidateConfigPaths) {
-            if (await FileService.exists(candidatePath)) {
+            if (await this.fileService.exists(candidatePath)) {
                 configPaths.push(candidatePath);
             }
         }
@@ -77,27 +87,27 @@ export class ConfigService {
         return configPaths;
     }
 
-    private static async createDefaultConfig(): Promise<void> {
+    private async createDefaultConfig(): Promise<void> {
         const userConfigPath: TDirectoryPath = this.getUserConfigPath();
 
         const defaultConfig: IConfig = {
-            version: await AppService.getVersion(),
+            version: await this.appService.getVersion(),
             active: { path: "~/space.code-workspace" },
             view: { type: "Workspace" },
         };
 
-        await JsonService.save(userConfigPath, defaultConfig);
+        await this.jsonService.save(userConfigPath, defaultConfig);
     }
 
-    private static async getConfigsFromPaths(
+    private async getConfigsFromPaths(
         paths: TDirectoryPath[],
     ): Promise<IConfig[]> {
         const configs: IConfig[] = [];
         for (const path of paths) {
             const config: TResult<IConfig, string> =
-                await JsonService.load(path);
+                await this.jsonService.load(path);
             if (config.isError()) {
-                LoggerService.warn(
+                this.loggerService.warn(
                     `Failed to load config from '${path}' - ${config.getError()}`,
                 );
                 continue;
@@ -109,11 +119,11 @@ export class ConfigService {
         return configs;
     }
 
-    private static combineConfigs(configs: IConfig[]): IConfig {
+    private combineConfigs(configs: IConfig[]): IConfig {
         return this.deepMergeObjects(configs);
     }
 
-    private static deepMergeObjects<TObject>(objects: TObject[]): TObject {
+    private deepMergeObjects<TObject>(objects: TObject[]): TObject {
         const isObject = (item: any): item is Record<string, any> => {
             return item && typeof item === "object" && !Array.isArray(item);
         };
@@ -140,7 +150,7 @@ export class ConfigService {
         }, {} as any) as TObject;
     }
 
-    private static validate(config: IConfig): TResult<IConfig, string> {
+    private validate(config: IConfig): TResult<IConfig, string> {
         const errors: string[] = [];
 
         if (!config.version) errors.push("No version specified");
@@ -155,7 +165,7 @@ export class ConfigService {
         return Result.success(config);
     }
 
-    private static applyDefaults(config: IConfig): void {
+    private applyDefaults(config: IConfig): void {
         if (config.active === undefined) {
             config.active = {
                 path: "~/space.code-workspace",

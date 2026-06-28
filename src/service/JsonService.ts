@@ -1,4 +1,4 @@
-import { readFile } from "node:fs";
+import { singleton, inject } from "tsyringe";
 import { Result, TResult } from "../types/Result.js";
 import JSON5 from "json5";
 import { FileService } from "./fs/FileService.js";
@@ -10,13 +10,16 @@ export type IValidationResult = {
 };
 export type TJsonValidator = (obj: unknown) => IValidationResult;
 
+@singleton()
 export class JsonService {
-    public static async load<TJson>(
+    constructor(@inject(FileService) private fileService: FileService) {}
+
+    public async load<TJson>(
         path: TPath,
         validator?: TJsonValidator,
     ): Promise<TResult<TJson, string>> {
         const contentResult: TResult<string, string> =
-            await FileService.read(path);
+            await this.fileService.read(path);
         if (contentResult.isError()) {
             return Result.error(contentResult.getError()!);
         }
@@ -24,7 +27,7 @@ export class JsonService {
         return this.parse(contentResult.getValue()!, validator);
     }
 
-    public static async save<TJson>(
+    public async save<TJson>(
         path: TPath,
         obj: TJson,
     ): Promise<TResult<void, string>> {
@@ -33,10 +36,10 @@ export class JsonService {
             return Result.error(stringifyResult.getError()!);
         }
 
-        return await FileService.write(path, stringifyResult.getValue()!);
+        return await this.fileService.write(path, stringifyResult.getValue()!);
     }
 
-    public static parse<TJson>(
+    public parse<TJson>(
         text: string,
         validator?: TJsonValidator,
     ): TResult<TJson, string> {
@@ -64,7 +67,7 @@ export class JsonService {
         }
     }
 
-    public static stringify<TJson>(
+    public stringify<TJson>(
         obj: TJson,
         pretty: boolean = true,
     ): TResult<string, string> {

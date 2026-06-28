@@ -1,3 +1,4 @@
+import { singleton } from "tsyringe";
 import {
     resolve,
     relative,
@@ -17,20 +18,21 @@ import type {
     TFileExtension,
 } from "../../types/PathTypes.js";
 
+@singleton()
 export class PathService {
-    private static expandHome(path: string): string {
+    private expandHome(path: string): string {
         return path.replace(/^~(?=$|\/|\\)/, homedir());
     }
 
-    public static getCurrentWorkingDirectory(): TDirectoryPath {
+    public getCurrentWorkingDirectory(): TDirectoryPath {
         return process.cwd();
     }
 
-    public static isAbsolute(path: TPath): boolean {
+    public isAbsolute(path: TPath): boolean {
         return isAbsolute(this.expandHome(path));
     }
 
-    public static toAbsolute(path: TPath, base?: TDirectoryPath): TPath {
+    public toAbsolute(path: TPath, base?: TDirectoryPath): TPath {
         const targetPath = this.expandHome(path);
 
         if (isAbsolute(targetPath)) {
@@ -41,15 +43,15 @@ export class PathService {
         return resolve(targetBase, targetPath);
     }
 
-    public static toRelative(from: TPath, to: TPath): TPath {
+    public toRelative(from: TPath, to: TPath): TPath {
         return relative(this.expandHome(from), this.expandHome(to));
     }
 
-    public static getParent(path: TPath): TDirectoryPath {
+    public getParent(path: TPath): TDirectoryPath {
         return dirname(resolve(this.expandHome(path)));
     }
 
-    public static getParents(
+    public getParents(
         path: TPath,
         options: { includeCurrentWorkingDirectory: boolean } = {
             includeCurrentWorkingDirectory: false,
@@ -72,23 +74,23 @@ export class PathService {
         return parents;
     }
 
-    public static getName(
+    public getName(
         path: TFilePath,
         extension?: TFileExtension,
     ): TFileName {
         return basename(this.expandHome(path), extension);
     }
 
-    public static getExtension(path: TFilePath): TFileExtension {
+    public getExtension(path: TFilePath): TFileExtension {
         return extname(this.expandHome(path));
     }
 
-    public static isFileSystemRoot(path: TPath): boolean {
+    public isFileSystemRoot(path: TPath): boolean {
         const absPath = resolve(this.expandHome(path));
         return absPath === dirname(absPath);
     }
 
-    public static join(...segments: string[]): TPath {
+    public join(...segments: string[]): TPath {
         // Map over segments to expand a tilde if it forms the beginning of the joined path
         const expandedSegments = segments.map((segment, index) => {
             return index === 0 ? this.expandHome(segment) : segment;
@@ -96,7 +98,7 @@ export class PathService {
         return join(...expandedSegments);
     }
 
-    public static normalize(path: TPath): TPath {
+    public normalize(path: TPath): TPath {
         return normalize(this.expandHome(path));
     }
 }

@@ -1,26 +1,30 @@
+import { singleton, inject } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import { Result, type TResult } from "../types/Result.js";
 import { ConfigService } from "./ConfigService.js";
 
+@singleton()
 export class ViewService {
-    public static async refresh(): Promise<TResult<boolean, string>> {
-        const config: IConfig = await ConfigService.get();
+    constructor(@inject(ConfigService) private configService: ConfigService) {}
+
+    public async refresh(): Promise<TResult<boolean, string>> {
+        const config: IConfig = await this.configService.get();
 
         switch (config.view.type) {
             case "Folder":
-                this.refreshFolderView();
+                await this.refreshFolderView();
                 break;
             case "Workspace":
-                this.refreshWorkspaceView();
+                await this.refreshWorkspaceView();
                 break;
             default:
-                throw new Error(`Unknown view type '${config.view}'`);
+                throw new Error(`Unknown view type`);
         }
 
         return Result.success(true);
     }
 
-    private static async refreshFolderView(): Promise<
+    private async refreshFolderView(): Promise<
         TResult<boolean, string>
     > {
         // TODO: Implement this
@@ -35,7 +39,7 @@ export class ViewService {
         throw new Error("Not implemented - refreshFolderView");
     }
 
-    private static async refreshWorkspaceView(): Promise<
+    private async refreshWorkspaceView(): Promise<
         TResult<boolean, string>
     > {
         // Workspace view uses the open VSCode workspace file - no tweaks needed

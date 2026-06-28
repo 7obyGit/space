@@ -1,9 +1,11 @@
+import { singleton } from "tsyringe";
 import { symlink, readlink, realpath } from "node:fs/promises";
 import { Result, type TResult } from "../../types/Result.js";
 import type { TSymlink, TPath } from "../../types/PathTypes.js";
 
+@singleton()
 export class LinkService {
-    public static async create(link: TSymlink): Promise<TResult<void, string>> {
+    public async create(link: TSymlink): Promise<TResult<void, string>> {
         try {
             await symlink(link.to, link.from);
             return Result.success(undefined);
@@ -15,7 +17,7 @@ export class LinkService {
     }
 
     // Gets the path the current link points to, may be another link
-    public static async getLinkTarget(
+    public async getLinkTarget(
         path: TPath,
     ): Promise<TResult<TPath, string>> {
         try {
@@ -28,7 +30,7 @@ export class LinkService {
     }
 
     // Gets the real path the link point to, should not be a symlink
-    public static async getRealPath(
+    public async getRealPath(
         path: TPath,
     ): Promise<TResult<TPath, string>> {
         try {
