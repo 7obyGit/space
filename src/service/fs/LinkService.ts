@@ -1,11 +1,11 @@
 import { readlink, realpath, symlink } from "node:fs/promises";
 import { singleton } from "tsyringe";
-import type { TPath, TSymlink } from "../../types/PathTypes.js";
+import type { TPath, ISymlink } from "../../types/PathTypes.js";
 import { Result, type TResult } from "../../types/Result.js";
 
 @singleton()
 export class LinkService {
-    public async create(link: TSymlink): Promise<TResult<void, string>> {
+    public async create(link: ISymlink): Promise<TResult<void, string>> {
         try {
             await symlink(link.to, link.from);
             return Result.success(undefined);
