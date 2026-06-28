@@ -10,32 +10,32 @@ export type TErrorHandler<TError, TResult> = (error: TError) => TResult;
 export class Result<TSuccess, TError> {
     private readonly value?: TSuccess = undefined;
     private readonly error?: TError = undefined;
+    private readonly isSuccessStatus: boolean;
 
-    private constructor(value?: TSuccess, error?: TError) {
-        if (value === undefined && error === undefined) {
-            throw new Error(
-                `Attempted to create result with empty value (${value}) and error (${error})`,
-            );
-        }
-
+    private constructor(
+        isSuccess: boolean,
+        value?: TSuccess,
+        error?: TError,
+    ) {
+        this.isSuccessStatus = isSuccess;
         this.value = value;
         this.error = error;
     }
 
     public static success<TSuccess>(value: TSuccess): TSuccessResult<TSuccess> {
-        return new Result(value, undefined);
+        return new Result(true, value, undefined) as TSuccessResult<TSuccess>;
     }
 
     public static error<TError>(error: TError): TErrorResult<TError> {
-        return new Result(undefined, error);
+        return new Result(false, undefined, error) as TErrorResult<TError>;
     }
 
     public isSuccess(): boolean {
-        return this.value !== undefined;
+        return this.isSuccessStatus;
     }
 
     public isError(): boolean {
-        return this.error !== undefined;
+        return !this.isSuccessStatus;
     }
 
     public getValue(errorHandler?: TErrorHandler<TError, undefined>): TSuccess {
