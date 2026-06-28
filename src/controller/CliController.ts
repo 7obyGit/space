@@ -1,10 +1,10 @@
 import { Builtins, Cli } from "clipanion";
 import { singleton } from "tsyringe";
-import { ListCommand } from "../command/ListCommand.js";
-import { InfoCommand } from "../command/InfoCommand.js";
 import { AddCommand } from "../command/AddCommand.js";
-import { RemoveCommand } from "../command/RemoveCommand.js";
+import { InfoCommand } from "../command/InfoCommand.js";
+import { ListCommand } from "../command/ListCommand.js";
 import { PopCommand } from "../command/PopCommand.js";
+import { RemoveCommand } from "../command/RemoveCommand.js";
 
 @singleton()
 export class CliController {

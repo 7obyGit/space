@@ -29,7 +29,7 @@ export class InfoCommand extends BaseCommand {
         }
 
         this.loggerService.info(chalk.cyan.bold("\n🚀  Current Active Space\n"));
-        
+
         const name = chalk.green.bold(active.space.name);
         const path = chalk.gray(`(${active.space.path})`);
         this.loggerService.info(`  ${chalk.green("●")} ${name.padEnd(20)} ${path}`);
@@ -55,7 +55,7 @@ export class InfoCommand extends BaseCommand {
                 this.loggerService.info(`    ${chalk.gray("-")} ${file}`);
             });
         }
-        
+
         this.loggerService.info("");
     }
 }
