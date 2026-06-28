@@ -19,13 +19,20 @@
 - Scans up the directory tree looking for space dirs, thereby working in subdirectories and supports inheritance of more generic spaces
 - Attached files are referenced in the code-workspace file, and a tmp dir is created with symlinks to the listed files, dynamically add the tmp directory to the currently loaded space
 
+## Features
+
+- `space env`
+
 ## Ideas
 
-- `aw` integration
-- `space run ...` + `space env ...`? - something along the lines of support for env
 - Custom hooks, e.g. defined in workspace file a bit like "scripts" section of `package.json` -> support for running script on load of workspace, on close, etc
 - Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
 - `space init --view=workspace` command (first time setup with options)
 - Relative space support, if path is below or is current workspace dir, use relative path instead (e.g. for repos)
 - scratch space - in `/tmp` and in new vscode window
+
+## TODO
+
+- `space run ...` -> uses `aw` to run command by importing `aw` and running it e.g. `aw.run()` instead of through the command line
+- `aw` support for space scripts and env vars - integration
 
