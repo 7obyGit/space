@@ -94,6 +94,15 @@ export class PathService {
     public normalize(path: TPath): TPath {
         return normalize(this.expandHome(path));
     }
+
+    public formatDisplayPath(path: TPath): string {
+        const home = homedir();
+        if (path.startsWith(home)) {
+            return path.replace(home, "~");
+        }
+        return path;
+    }
+
     private expandHome(path: string): string {
         return path.replace(/^~(?=$|\/|\\)/, homedir());
     }

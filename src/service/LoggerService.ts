@@ -7,16 +7,17 @@ import { singleton } from "tsyringe";
 export class LoggerService {
     constructor() {
         marked.setOptions({
-            renderer: new TerminalRenderer() as any,
+            renderer: new TerminalRenderer({
+                tableOptions: {
+                    style: {
+                        head: ["yellow", "bold"],
+                    },
+                },
+            }) as any,
         });
     }
 
     private render(text: string): string {
-        // Check if the string already contains ANSI escape codes
-        const hasAnsi = /\u001b\[[0-9;]*m/.test(text);
-        if (hasAnsi) {
-            return text;
-        }
         return (marked(text) as string).trim();
     }
 

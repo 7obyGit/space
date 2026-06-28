@@ -4,12 +4,14 @@ import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
+import { PathService } from "../service/fs/PathService.js";
 
 @Command("list", "List all available spaces")
 @singleton()
 export class ListCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
+    private pathService = container.resolve(PathService);
 
     public json = Option.Boolean("--json", false, {
         description: "Output the data as JSON",
@@ -31,16 +33,21 @@ export class ListCommand extends BaseCommand {
             return;
         }
 
+        let table = "| | Name | Path |\n";
+        table += "| --- | --- | --- |\n";
+
         spaces.forEach((space) => {
             const isActive = active && space.space.name === active.space.name;
-            const icon = isActive ? chalk.green("●") : chalk.gray("○");
+            const icon = isActive ? chalk.yellow("●") : chalk.gray("○");
             const name = isActive
-                ? chalk.green.bold(space.space.name)
-                : chalk.white(space.space.name);
-            const path = chalk.gray(`(${space.space.path})`);
+                ? chalk.bold(space.space.name)
+                : space.space.name;
+            const displayPath = this.pathService.formatDisplayPath(space.space.path);
 
-            this.loggerService.info(`  ${icon} ${name.padEnd(20)} ${path}`);
+            table += `| ${icon} | ${chalk.green(name)} | ${chalk.cyan(displayPath)} |\n`;
         });
+
+        this.loggerService.info(table);
         this.loggerService.info("");
     }
 }

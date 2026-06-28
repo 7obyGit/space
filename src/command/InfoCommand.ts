@@ -4,12 +4,14 @@ import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
+import { PathService } from "../service/fs/PathService.js";
 
 @Command(BaseCommand.Default, "Show information about the current active space")
 @singleton()
 export class InfoCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
+    private pathService = container.resolve(PathService);
 
     public json = Option.Boolean("--json", false, {
         description: "Output the data as JSON",
@@ -30,20 +32,22 @@ export class InfoCommand extends BaseCommand {
 
         this.loggerService.info(chalk.cyan.bold("\n🚀  Current Active Space\n"));
 
-        const name = chalk.green.bold(active.space.name);
-        const path = chalk.gray(`(${active.space.path})`);
-        this.loggerService.info(`  ${chalk.green("●")} ${name.padEnd(20)} ${path}`);
+        const displayName = chalk.bold(active.space.name);
+        const displayPath = this.pathService.formatDisplayPath(active.space.path);
+        this.loggerService.info(`  ${chalk.yellow("●")} ${displayName} - ${chalk.cyan(displayPath)}`);
 
         if (active.folders && active.folders.length > 0) {
             this.loggerService.info(chalk.white.bold("\n  Folders:"));
+            let foldersTable = "| Name | Path |\n";
+            foldersTable += "| --- | --- |\n";
             active.folders.forEach((folder) => {
                 const folderPath =
                     (folder as any).path || (folder as any).uri || "Unknown";
-                const folderName = folder.name ? ` (${folder.name})` : "";
-                this.loggerService.info(
-                    `    ${chalk.gray("-")} ${folderPath}${chalk.gray(folderName)}`,
-                );
+                const displayFolderPath = this.pathService.formatDisplayPath(folderPath);
+                const folderName = folder.name || "-";
+                foldersTable += `| ${chalk.green(folderName)} | ${chalk.cyan(displayFolderPath)} |\n`;
             });
+            this.loggerService.info(foldersTable);
         }
 
         if (
@@ -51,9 +55,13 @@ export class InfoCommand extends BaseCommand {
             active.space.attachedFiles.length > 0
         ) {
             this.loggerService.info(chalk.white.bold("\n  Attached Files:"));
+            let filesTable = "| File Path |\n";
+            filesTable += "| --- |\n";
             active.space.attachedFiles.forEach((file) => {
-                this.loggerService.info(`    ${chalk.gray("-")} ${file}`);
+                const displayFilePath = this.pathService.formatDisplayPath(file);
+                filesTable += `| ${chalk.cyan(displayFilePath)} |\n`;
             });
+            this.loggerService.info(filesTable);
         }
 
         this.loggerService.info("");

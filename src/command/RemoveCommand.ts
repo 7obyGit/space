@@ -1,14 +1,17 @@
+import chalk from "chalk";
 import { Command as BaseCommand, Option } from "clipanion";
 import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
+import { PathService } from "../service/fs/PathService.js";
 
 @Command("remove", "Remove a folder from the active space")
 @singleton()
 export class RemoveCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
+    private pathService = container.resolve(PathService);
 
     public folderPath = Option.String({ name: "path", required: false });
 
@@ -18,6 +21,10 @@ export class RemoveCommand extends BaseCommand {
             this.loggerService.error(result.getError());
             return 1;
         }
-        this.loggerService.info(`Removed folder from active space.`);
+        const targetPath = this.folderPath
+            ? this.pathService.toAbsolute(this.folderPath)
+            : this.pathService.getCurrentWorkingDirectory();
+        const displayPath = this.pathService.formatDisplayPath(targetPath);
+        this.loggerService.info(`Removed folder ${chalk.cyan(chalk.bold(displayPath))} from active space.`);
     }
 }
