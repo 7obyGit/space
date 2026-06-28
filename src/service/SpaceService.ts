@@ -251,6 +251,83 @@ export class SpaceService {
         return Result.success(true);
     }
 
+    public async saveLoadedSpace(space: ILoadedSpace): Promise<void> {
+        // Save to original path
+        const savedSpace: ISavedSpace = this.toSavedSpace(
+            space,
+            space.space.path,
+        );
+        await this.jsonService.save(space.space.path, savedSpace);
+
+        // Save to active path
+        const activePath = await this.getActivePath();
+        await this.jsonService.save(activePath, space);
+    }
+
+    public async addFolderToActive(
+        folderPath?: string,
+    ): Promise<TResult<void, string>> {
+        const active = await this.getActive();
+        if (!active) {
+            return Result.error("No active space found");
+        }
+
+        const targetPath = folderPath
+            ? this.pathService.toAbsolute(folderPath)
+            : this.pathService.getCurrentWorkingDirectory();
+
+        // Ensure folders is initialized
+        if (!active.folders) {
+            active.folders = [];
+        }
+
+        active.folders.unshift({ path: targetPath });
+
+        await this.saveLoadedSpace(active);
+        return Result.success(undefined);
+    }
+
+    public async removeFolderFromActive(
+        folderPath?: string,
+    ): Promise<TResult<void, string>> {
+        const active = await this.getActive();
+        if (!active) {
+            return Result.error("No active space found");
+        }
+
+        const targetPath = folderPath
+            ? this.pathService.toAbsolute(folderPath)
+            : this.pathService.getCurrentWorkingDirectory();
+
+        if (!active.folders) {
+            return Result.success(undefined);
+        }
+
+        active.folders = active.folders.filter((f) => {
+            const p = (f as any).path || (f as any).uri;
+            return p !== targetPath;
+        });
+
+        await this.saveLoadedSpace(active);
+        return Result.success(undefined);
+    }
+
+    public async popFolderFromActive(): Promise<TResult<void, string>> {
+        const active = await this.getActive();
+        if (!active) {
+            return Result.error("No active space found");
+        }
+
+        if (!active.folders || active.folders.length === 0) {
+            return Result.error("No folders to pop");
+        }
+
+        active.folders.shift();
+
+        await this.saveLoadedSpace(active);
+        return Result.success(undefined);
+    }
+
     private async save(space: ILoadedSpace): Promise<void> {
         // Set default space config
         const savedSpace: ISavedSpace = this.toSavedSpace(
@@ -286,13 +363,15 @@ export class SpaceService {
     }
 
     private toLoadedSpace(space: ISavedSpace, path: TFilePath): ILoadedSpace {
+        const spacePath = space.space?.path;
+
         // This creates a copy of the input space and ensures default values are set
         space = this.toSavedSpace(space, path);
 
         // The path to the saved space is required when a space is active, as this
         // enables `space` to know where to save the active space to
-        if (space?.space !== undefined && space?.space?.path === undefined) {
-            space.space.path = path;
+        if (space?.space !== undefined) {
+            space.space.path = spacePath ?? path;
         }
 
         return space as ILoadedSpace;

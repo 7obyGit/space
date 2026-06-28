@@ -2,6 +2,9 @@ import { Builtins, Cli } from "clipanion";
 import { singleton } from "tsyringe";
 import { ListCommand } from "../command/ListCommand.js";
 import { InfoCommand } from "../command/InfoCommand.js";
+import { AddCommand } from "../command/AddCommand.js";
+import { RemoveCommand } from "../command/RemoveCommand.js";
+import { PopCommand } from "../command/PopCommand.js";
 
 @singleton()
 export class CliController {
@@ -14,6 +17,9 @@ export class CliController {
 
         cli.register(InfoCommand);
         cli.register(ListCommand);
+        cli.register(AddCommand);
+        cli.register(RemoveCommand);
+        cli.register(PopCommand);
         cli.register(Builtins.HelpCommand);
         cli.register(Builtins.VersionCommand);
 
