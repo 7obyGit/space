@@ -133,11 +133,32 @@ export class SpaceService {
         return generatedSpace;
     }
 
-    public async use(name: string): Promise<TResult<ILoadedSpace, string>> {
+    public async use(
+        nameOrPath: string,
+    ): Promise<TResult<ILoadedSpace, string>> {
         // Find the new space
-        const newSpace: ILoadedSpace | undefined = await this.get(name);
+        let newSpace: ILoadedSpace | undefined = await this.get(nameOrPath);
+
         if (newSpace === undefined) {
-            return Result.error(`No space with name '${name}' exists!`);
+            // Try to load as a path
+            const absolutePath = this.pathService.toAbsolute(nameOrPath);
+            if (await this.fileService.exists(absolutePath)) {
+                const result: TResult<ISavedSpace, string> =
+                    await this.jsonService.load(absolutePath);
+
+                if (result.isSuccess()) {
+                    newSpace = this.toLoadedSpace(
+                        result.getValue()!,
+                        absolutePath,
+                    );
+                }
+            }
+        }
+
+        if (newSpace === undefined) {
+            return Result.error(
+                `No space with name or path '${nameOrPath}' exists!`,
+            );
         }
 
         // Find active space

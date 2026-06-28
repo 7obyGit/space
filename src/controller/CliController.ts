@@ -3,8 +3,10 @@ import { singleton } from "tsyringe";
 import { AddCommand } from "../command/AddCommand.js";
 import { InfoCommand } from "../command/InfoCommand.js";
 import { ListCommand } from "../command/ListCommand.js";
+import { OpenCommand } from "../command/OpenCommand.js";
 import { PopCommand } from "../command/PopCommand.js";
 import { RemoveCommand } from "../command/RemoveCommand.js";
+import { UseCommand } from "../command/UseCommand.js";
 
 @singleton()
 export class CliController {
@@ -20,6 +22,8 @@ export class CliController {
         cli.register(AddCommand);
         cli.register(RemoveCommand);
         cli.register(PopCommand);
+        cli.register(UseCommand);
+        cli.register(OpenCommand);
         cli.register(Builtins.HelpCommand);
         cli.register(Builtins.VersionCommand);
 

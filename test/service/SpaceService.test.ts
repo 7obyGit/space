@@ -33,6 +33,7 @@ describe("SpaceService", () => {
             getCurrentWorkingDirectory: vi.fn(() => "/cwd"),
             getName: vi.fn((p) => p),
             getExtension: vi.fn(() => ".json"),
+            toAbsolute: vi.fn((p) => p),
         };
         mockJsonService = { load: vi.fn(), save: vi.fn() };
         mockLoggerService = { warn: vi.fn(), info: vi.fn() };
@@ -147,11 +148,39 @@ describe("SpaceService", () => {
 
         it("should return error if new space does not exist", async () => {
             vi.spyOn(spaceService, "get").mockResolvedValue(undefined);
+            mockFileService.exists.mockResolvedValue(false);
             const result = await spaceService.use("missing");
             expect(result.isError()).toBe(true);
             expect(result.getError()).toContain(
-                "No space with name 'missing' exists",
+                "No space with name or path 'missing' exists",
             );
+        });
+
+        it("should switch to a new space by path", async () => {
+            const activePath = "/active/path";
+            const newPath = "/path/new.code-workspace";
+            const newSpace = { space: { name: "new", path: newPath } };
+            const oldSpace = { space: { name: "old", path: "/path/old" } };
+
+            vi.spyOn(spaceService, "get").mockResolvedValue(undefined);
+            mockFileService.exists.mockResolvedValue(true);
+            mockJsonService.load.mockResolvedValue(Result.success(newSpace));
+            vi.spyOn(spaceService, "getActive").mockResolvedValue(
+                oldSpace as any,
+            );
+            mockConfigService.get.mockResolvedValue({
+                active: { path: activePath },
+            });
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.use(newPath);
+
+            expect(result.isSuccess()).toBe(true);
+            expect(mockJsonService.save).toHaveBeenCalledWith(
+                activePath,
+                expect.anything(),
+            );
+            expect(result.getValue()!.space.path).toBe(newPath);
         });
 
         it("should return error if active space has no name", async () => {
