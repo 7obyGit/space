@@ -34,13 +34,13 @@
 ## TODO
 
 - `space run ...` -> uses `aw` to run command by importing `aw` and running it e.g. `aw.run()` instead of through the command line
-- Scripts support:
+- Scripts support (hooks are implemented as any other script, to be run when a command with the same name is invoked e.g. `space open` invokes script for `open` if it exists)
 
 ```json
 {
   "scripts": {
     "open": {
-      "cmd": "echo 'I run when you switch to this space'"
+      "post-cmd": "echo 'I run when you switch to this space'; space run install"
     },
     "close": {
       "pre-cmd": "echo 'I run just before you switch to a different space'"
