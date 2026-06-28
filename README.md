@@ -27,3 +27,5 @@
 - Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
 - `space init --view=workspace` command (first time setup with options)
 - Relative space support, if path is below or is current workspace dir, use relative path instead (e.g. for repos)
+- scratch space - in `/tmp` and in new vscode window
+
