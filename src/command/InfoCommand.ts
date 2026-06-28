@@ -2,9 +2,9 @@ import chalk from "chalk";
 import { Command as BaseCommand, Option } from "clipanion";
 import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
+import { PathService } from "../service/fs/PathService.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
-import { PathService } from "../service/fs/PathService.js";
 
 @Command(BaseCommand.Default, "Show information about the current active space")
 @singleton()
