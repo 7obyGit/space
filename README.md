@@ -34,5 +34,26 @@
 ## TODO
 
 - `space run ...` -> uses `aw` to run command by importing `aw` and running it e.g. `aw.run()` instead of through the command line
+- Scripts support:
+
+```json
+{
+  "scripts": {
+    "open": {
+      "cmd": "echo 'I run when you switch to this space'"
+    },
+    "close": {
+      "pre-cmd": "echo 'I run just before you switch to a different space'"
+    },
+    "install": {
+      "post-cmd": "echo 'I run when you run space install, after the install'"
+    },
+    "example": {
+      "cmd": "echo 'I run when you run space run example'"
+    }
+  }
+}
+```
+
 - `aw` support for space scripts and env vars - integration
 
