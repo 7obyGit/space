@@ -95,8 +95,13 @@ export class SpaceService {
             },
         };
 
+        const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+            spaceContent,
+            spacePath,
+        );
+
         // Ensure all default space values are set
-        this.toSavedSpace(spaceContent, spacePath);
+        await this.save(loadedSpace)
 
         await JsonService.save(spacePath, spaceContent);
 
@@ -187,17 +192,13 @@ export class SpaceService {
 
                 const savedSpace: ISavedSpace = result.getValue()!;
 
-                // Set default space config
-                this.toSavedSpace(savedSpace, spacePath);
-
-                // Ensure the updated defaults are persisted
-                JsonService.save(spacePath, savedSpace);
-
                 // Convert to the loaded variant so the tool knows where it came from
                 const loadedSpace: ILoadedSpace = this.toLoadedSpace(
                     savedSpace,
                     spacePath,
                 );
+
+                await this.save(loadedSpace)
 
                 spaces.push(loadedSpace);
             }
@@ -242,36 +243,42 @@ export class SpaceService {
     }
 
     private static async save(space: ILoadedSpace): Promise<void> {
-        //TODO
+        // Set default space config
+        const savedSpace: ISavedSpace = this.toSavedSpace(space, space.space.path);
+
+        await JsonService.save(space.space.path, savedSpace);
     }
 
     private static toSavedSpace(
-        space: ILoadedSpace | ISavedSpace,
+        loadedSpace: ILoadedSpace | ISavedSpace,
         path: TFilePath,
     ): ISavedSpace {
-        if (space.space === undefined) {
-            space.space = {};
+        const savedSpace: ISavedSpace = structuredClone(loadedSpace);
+
+        if (savedSpace.space === undefined) {
+            savedSpace.space = {};
         }
 
-        if (space.space.name === undefined) {
-            space.space.name = PathService.getName(
+        if (savedSpace.space.name === undefined) {
+            savedSpace.space.name = PathService.getName(
                 path,
                 PathService.getExtension(path),
             );
         }
 
-        if (space.space.path !== undefined) {
-            space.space.path = undefined;
+        if (savedSpace.space.path !== undefined) {
+            savedSpace.space.path = undefined;
         }
 
-        return space;
+        return savedSpace;
     }
 
     private static toLoadedSpace(
         space: ISavedSpace,
         path: TFilePath,
     ): ILoadedSpace {
-        this.toSavedSpace(space, path);
+        // This creates a copy of the input space and ensures default values are set
+        space = this.toSavedSpace(space, path);
 
         // The path to the saved space is required when a space is active, as this
         // enables `space` to know where to save the active space to
