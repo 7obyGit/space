@@ -3,6 +3,7 @@ import { container } from "tsyringe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConfigService } from "../../src/service/ConfigService.js";
 import { FileService } from "../../src/service/fs/FileService.js";
+import { LinkService } from "../../src/service/fs/LinkService.js";
 import { PathService } from "../../src/service/fs/PathService.js";
 import { JsonService } from "../../src/service/JsonService.js";
 import { LoggerService } from "../../src/service/LoggerService.js";
@@ -16,16 +17,19 @@ describe("SpaceService", () => {
     let mockPathService: any;
     let mockJsonService: any;
     let mockLoggerService: any;
+    let mockLinkService: any;
 
     beforeEach(() => {
         container.clearInstances();
 
         mockConfigService = { get: vi.fn() };
+        mockLinkService = { create: vi.fn() };
         mockFileService = {
             exists: vi.fn(),
             createDirectory: vi.fn(),
             listFiles: vi.fn(),
             delete: vi.fn(),
+            isFile: vi.fn(),
         };
         mockPathService = {
             join: vi.fn((...args) => args.join("/")),
@@ -43,6 +47,7 @@ describe("SpaceService", () => {
         container.registerInstance(PathService, mockPathService);
         container.registerInstance(JsonService, mockJsonService);
         container.registerInstance(LoggerService, mockLoggerService);
+        container.registerInstance(LinkService, mockLinkService);
 
         spaceService = container.resolve(SpaceService);
 
@@ -228,6 +233,57 @@ describe("SpaceService", () => {
             expect(mockLoggerService.warn).toHaveBeenCalledWith(
                 expect.stringContaining("currently active"),
             );
+        });
+    });
+
+    describe("Attached Files", () => {
+        it("should add a file to attachedFiles and sync", async () => {
+            const activePath = "/active/path";
+            const space = {
+                space: { name: "myspace", attachedFiles: [] },
+                folders: [],
+            };
+
+            vi.spyOn(spaceService, "getActive").mockResolvedValue(space as any);
+            vi.spyOn(spaceService, "getActivePath").mockResolvedValue(
+                activePath,
+            );
+            mockFileService.isFile.mockResolvedValue(true);
+            mockFileService.exists.mockResolvedValue(false); // tmp dir does not exist
+            mockLinkService.create.mockResolvedValue(Result.success(undefined));
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.addFolderToActive("test.txt");
+
+            expect(result.isSuccess()).toBe(true);
+            expect(space.space.attachedFiles).toContain("test.txt");
+            expect(space.folders).toContainEqual({
+                path: "/tmp/space/myspace",
+                name: "Attached Files",
+            });
+            expect(mockLinkService.create).toHaveBeenCalled();
+        });
+
+        it("should remove from both folders and attachedFiles", async () => {
+            const activePath = "/active/path";
+            const target = "/target";
+            const space = {
+                space: { name: "myspace", attachedFiles: [target] },
+                folders: [{ path: target }],
+            };
+
+            vi.spyOn(spaceService, "getActive").mockResolvedValue(space as any);
+            vi.spyOn(spaceService, "getActivePath").mockResolvedValue(
+                activePath,
+            );
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            await spaceService.removeFolderFromActive(target);
+
+            expect(
+                space.folders.filter((f) => (f as any).path === target).length,
+            ).toBe(0);
+            expect(space.space.attachedFiles).not.toContain(target);
         });
     });
 });

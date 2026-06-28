@@ -5,6 +5,7 @@ import { Result, type TResult } from "../types/Result.js";
 import type { ILoadedSpace, ISavedSpace } from "../types/Space.js";
 import { ConfigService } from "./ConfigService.js";
 import { FileService } from "./fs/FileService.js";
+import { LinkService } from "./fs/LinkService.js";
 import { PathService } from "./fs/PathService.js";
 import { JsonService } from "./JsonService.js";
 import { LoggerService } from "./LoggerService.js";
@@ -14,6 +15,7 @@ export class SpaceService {
     constructor(
         @inject(ConfigService) private configService: ConfigService,
         @inject(FileService) private fileService: FileService,
+        @inject(LinkService) private linkService: LinkService,
         @inject(PathService) private pathService: PathService,
         @inject(JsonService) private jsonService: JsonService,
         @inject(LoggerService) private loggerService: LoggerService,
@@ -63,7 +65,11 @@ export class SpaceService {
         }
 
         const space: ISavedSpace = result.getValue()!;
-        return this.toLoadedSpace(space, activePath);
+        const loadedSpace = this.toLoadedSpace(space, activePath);
+
+        await this.syncAttachedFiles(loadedSpace);
+
+        return loadedSpace;
     }
 
     public async create(name: string): Promise<ILoadedSpace> {
@@ -102,7 +108,7 @@ export class SpaceService {
                 "window.title": `\${dirty}\${activeEditorShort} - ${name} (Space)`,
             },
             space: {
-                attachedFiles: [config.active.path],
+                attachedFiles: [this.pathService.toAbsolute(config.active.path)],
             },
         };
 
@@ -180,6 +186,9 @@ export class SpaceService {
 
             await this.jsonService.save(oldSpacePath, activeSpace);
         }
+
+        // Sync attached files for the new space
+        await this.syncAttachedFiles(newSpace);
 
         // Overwrite the active space file with the new space content
         await this.jsonService.save(await this.getActivePath(), newSpace);
@@ -273,6 +282,8 @@ export class SpaceService {
     }
 
     public async saveLoadedSpace(space: ILoadedSpace): Promise<void> {
+        await this.syncAttachedFiles(space);
+
         // Save to original path
         const savedSpace: ISavedSpace = this.toSavedSpace(
             space,
@@ -297,12 +308,21 @@ export class SpaceService {
             ? this.pathService.toAbsolute(folderPath)
             : this.pathService.getCurrentWorkingDirectory();
 
-        // Ensure folders is initialized
-        if (!active.folders) {
-            active.folders = [];
-        }
+        if (await this.fileService.isFile(targetPath)) {
+            if (!active.space.attachedFiles) {
+                active.space.attachedFiles = [];
+            }
+            if (!active.space.attachedFiles.includes(targetPath as TFilePath)) {
+                active.space.attachedFiles.push(targetPath as TFilePath);
+            }
+        } else {
+            // Ensure folders is initialized
+            if (!active.folders) {
+                active.folders = [];
+            }
 
-        active.folders.unshift({ path: targetPath });
+            active.folders.unshift({ path: targetPath });
+        }
 
         await this.saveLoadedSpace(active);
         return Result.success(undefined);
@@ -320,17 +340,72 @@ export class SpaceService {
             ? this.pathService.toAbsolute(folderPath)
             : this.pathService.getCurrentWorkingDirectory();
 
-        if (!active.folders) {
-            return Result.success(undefined);
+        if (active.folders) {
+            active.folders = active.folders.filter((f) => {
+                const p = (f as any).path || (f as any).uri;
+                return p !== targetPath;
+            });
         }
 
-        active.folders = active.folders.filter((f) => {
-            const p = (f as any).path || (f as any).uri;
-            return p !== targetPath;
-        });
+        if (active.space.attachedFiles) {
+            active.space.attachedFiles = active.space.attachedFiles.filter(
+                (f) => f !== targetPath,
+            );
+        }
 
         await this.saveLoadedSpace(active);
         return Result.success(undefined);
+    }
+
+    private async syncAttachedFiles(space: ILoadedSpace): Promise<void> {
+        const attachedFiles = space.space.attachedFiles || [];
+
+        const spaceName = space.space.name;
+        const tmpDir = `/tmp/space/${spaceName}` as TDirectoryPath;
+
+        if (attachedFiles.length === 0) {
+            // Remove "Attached Files" folder if it exists
+            if (space.folders) {
+                space.folders = space.folders.filter(
+                    (f) => (f as any).name !== "Attached Files",
+                );
+            }
+            // Cleanup tmp dir if it exists
+            if (await this.fileService.exists(tmpDir)) {
+                await this.fileService.delete(tmpDir);
+            }
+            return;
+        }
+
+        // Ensure tmpDir exists and is empty
+        if (await this.fileService.exists(tmpDir)) {
+            await this.fileService.delete(tmpDir);
+        }
+        await this.fileService.createDirectory(tmpDir);
+
+        for (const filePath of attachedFiles) {
+            const absoluteFilePath = this.pathService.toAbsolute(filePath);
+            const fileName = this.pathService.getName(absoluteFilePath);
+            const linkPath = this.pathService.join(tmpDir, fileName);
+            await this.linkService.create({
+                from: linkPath,
+                to: absoluteFilePath,
+            });
+        }
+
+        // Ensure "Attached Files" folder is in space.folders
+        if (!space.folders) {
+            space.folders = [];
+        }
+
+        const attachedFilesFolder = space.folders.find(
+            (f) => (f as any).name === "Attached Files",
+        );
+        if (attachedFilesFolder) {
+            (attachedFilesFolder as any).path = tmpDir;
+        } else {
+            space.folders.push({ path: tmpDir, name: "Attached Files" });
+        }
     }
 
     public async popFolderFromActive(): Promise<TResult<void, string>> {

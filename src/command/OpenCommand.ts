@@ -2,10 +2,10 @@ import chalk from "chalk";
 import { Command as BaseCommand } from "clipanion";
 import { container, singleton } from "tsyringe";
 import { Command } from "../decorators/Command.js";
+import { PathService } from "../service/fs/PathService.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
 import { TerminalService } from "../service/TerminalService.js";
-import { PathService } from "../service/fs/PathService.js";
 
 @Command("open", "Open the active workspace in VS Code")
 @singleton()
