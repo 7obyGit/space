@@ -1,5 +1,5 @@
+import { Builtins, Cli } from "clipanion";
 import { singleton } from "tsyringe";
-import { Cli, Builtins } from "clipanion";
 import { ListCommand } from "../command/ListCommand.js";
 
 @singleton()

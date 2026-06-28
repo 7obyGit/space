@@ -1,9 +1,9 @@
+import chalk from "chalk";
 import { Command as BaseCommand } from "clipanion";
 import { container, singleton } from "tsyringe";
-import chalk from "chalk";
-import { SpaceService } from "../service/SpaceService.js";
-import { LoggerService } from "../service/LoggerService.js";
 import { Command } from "../decorators/Command.js";
+import { LoggerService } from "../service/LoggerService.js";
+import { SpaceService } from "../service/SpaceService.js";
 
 @Command("list", "List all available spaces")
 @singleton()
@@ -11,7 +11,7 @@ export class ListCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
 
-    async execute() {
+    public async execute() {
         const spaces = await this.spaceService.list();
         const active = await this.spaceService.getActive();
 
@@ -22,7 +22,7 @@ export class ListCommand extends BaseCommand {
             return;
         }
 
-        spaces.forEach(space => {
+        spaces.forEach((space) => {
             const isActive = active && space.space.name === active.space.name;
             const icon = isActive ? chalk.green("●") : chalk.gray("○");
             const name = isActive ? chalk.green.bold(space.space.name) : chalk.white(space.space.name);

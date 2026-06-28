@@ -1,7 +1,7 @@
-import { singleton } from "tsyringe";
 import chalk from "chalk";
 import { marked } from "marked";
 import TerminalRenderer from "marked-terminal";
+import { singleton } from "tsyringe";
 
 @singleton()
 export class LoggerService {
@@ -29,22 +29,34 @@ export class LoggerService {
     }
 
     public debug(content: any): void {
+        const message = typeof content === "string"
+            ? this.render(content)
+            : this.formatMessage("DEBUG", content, chalk.blue);
         // tslint:disable-next-line:no-console
-        console.debug(typeof content === "string" ? this.render(content) : this.formatMessage("DEBUG", content, chalk.blue));
+        console.debug(message);
     }
 
     public info(content: any): void {
+        const message = typeof content === "string"
+            ? this.render(content)
+            : this.formatMessage("INFO", content, chalk.cyan);
         // tslint:disable-next-line:no-console
-        console.info(typeof content === "string" ? this.render(content) : this.formatMessage("INFO", content, chalk.cyan));
+        console.info(message);
     }
 
     public warn(content: any): void {
+        const message = typeof content === "string"
+            ? this.render(content)
+            : this.formatMessage("WARN", content, chalk.yellow);
         // tslint:disable-next-line:no-console
-        console.warn(typeof content === "string" ? this.render(content) : this.formatMessage("WARN", content, chalk.yellow));
+        console.warn(message);
     }
 
     public error(content: any): void {
+        const message = typeof content === "string"
+            ? this.render(content)
+            : this.formatMessage("ERROR", content, chalk.red.bold);
         // tslint:disable-next-line:no-console
-        console.error(typeof content === "string" ? this.render(content) : this.formatMessage("ERROR", content, chalk.red.bold));
+        console.error(message);
     }
 }

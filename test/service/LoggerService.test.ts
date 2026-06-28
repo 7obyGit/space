@@ -1,6 +1,6 @@
+import chalk from "chalk";
 import "reflect-metadata";
 import { container } from "tsyringe";
-import chalk from "chalk";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LoggerService } from "../../src/service/LoggerService.js";
 
@@ -14,6 +14,7 @@ describe("LoggerService", () => {
         vi.useFakeTimers();
         vi.setSystemTime(mockDate);
         process.env.FORCE_COLOR = "1";
+        chalk.level = 1;
         container.clearInstances();
         loggerService = container.resolve(LoggerService);
     });
