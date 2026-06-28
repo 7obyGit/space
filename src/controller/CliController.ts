@@ -1,6 +1,7 @@
 import { Builtins, Cli } from "clipanion";
 import { singleton } from "tsyringe";
 import { ListCommand } from "../command/ListCommand.js";
+import { InfoCommand } from "../command/InfoCommand.js";
 
 @singleton()
 export class CliController {
@@ -11,6 +12,7 @@ export class CliController {
             binaryVersion: "0.0.1",
         });
 
+        cli.register(InfoCommand);
         cli.register(ListCommand);
         cli.register(Builtins.HelpCommand);
         cli.register(Builtins.VersionCommand);
