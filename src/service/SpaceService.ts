@@ -9,6 +9,7 @@ import { LinkService } from "./fs/LinkService.js";
 import { PathService } from "./fs/PathService.js";
 import { JsonService } from "./JsonService.js";
 import { LoggerService } from "./LoggerService.js";
+import { TerminalService } from "./TerminalService.js";
 
 @singleton()
 export class SpaceService {
@@ -19,6 +20,7 @@ export class SpaceService {
         @inject(PathService) private pathService: PathService,
         @inject(JsonService) private jsonService: JsonService,
         @inject(LoggerService) private loggerService: LoggerService,
+        @inject(TerminalService) private terminalService: TerminalService,
     ) {}
 
     public async getActivePath(): Promise<TFilePath> {
@@ -357,6 +359,37 @@ export class SpaceService {
         return Result.success(undefined);
     }
 
+    public async getEnv(space: ILoadedSpace): Promise<Record<string, string>> {
+        const resolvedEnv: Record<string, string> = {};
+        const env = space.space.env || {};
+
+        for (const [key, value] of Object.entries(env)) {
+            if (typeof value === "string") {
+                resolvedEnv[key] = value;
+            } else if (typeof value === "object" && value !== null && "cmd" in value) {
+                const result = await this.terminalService.run(value.cmd);
+                if (result.isSuccess()) {
+                    const terminalResult = result.getValue()!;
+                    if (terminalResult.exitCode === 0) {
+                        resolvedEnv[key] = terminalResult.stdout.trim();
+                    } else {
+                        this.loggerService.error(
+                            `Failed to resolve env var ${key}: command exited with code ${terminalResult.exitCode}\n${terminalResult.stderr}`,
+                        );
+                        resolvedEnv[key] = "";
+                    }
+                } else {
+                    this.loggerService.error(
+                        `Failed to resolve env var ${key}: ${result.getError()}`,
+                    );
+                    resolvedEnv[key] = "";
+                }
+            }
+        }
+
+        return resolvedEnv;
+    }
+
     private async syncAttachedFiles(space: ILoadedSpace): Promise<void> {
         const attachedFiles = space.space.attachedFiles || [];
 
@@ -453,6 +486,10 @@ export class SpaceService {
 
         if (savedSpace.space.path !== undefined) {
             savedSpace.space.path = undefined;
+        }
+
+        if (savedSpace.space.env === undefined) {
+            savedSpace.space.env = {};
         }
 
         return savedSpace;

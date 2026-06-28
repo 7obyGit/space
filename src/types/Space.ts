@@ -6,6 +6,7 @@ export interface ISavedSpace extends IVSCodeWorkspace {
         path?: string;
         lastUpdated?: string;
         attachedFiles?: TFilePath[];
+        env?: ISpaceEnv;
     };
 }
 
@@ -15,7 +16,12 @@ export interface ILoadedSpace extends IVSCodeWorkspace {
         path: string;
         lastUpdated: string;
         attachedFiles: TFilePath[];
+        env: ISpaceEnv;
     };
+}
+
+export interface ISpaceEnv {
+    [key: string]: string | { cmd: string };
 }
 
 /**
