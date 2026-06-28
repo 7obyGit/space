@@ -111,6 +111,7 @@ export class SpaceService {
             },
             space: {
                 attachedFiles: [this.pathService.toAbsolute(config.active.path)],
+                lastUpdated: new Date().toISOString(),
             },
         };
 
@@ -190,6 +191,7 @@ export class SpaceService {
                 activeSpace,
                 oldSpacePath as TFilePath,
             );
+            savedActiveSpace.space.lastUpdated = new Date().toISOString();
             await this.jsonService.save(oldSpacePath, savedActiveSpace);
         }
 
@@ -288,6 +290,7 @@ export class SpaceService {
     }
 
     public async saveLoadedSpace(space: ILoadedSpace): Promise<void> {
+        space.space.lastUpdated = new Date().toISOString();
         await this.syncAttachedFiles(space);
 
         // Save to original path
@@ -500,6 +503,10 @@ export class SpaceService {
 
         if (savedSpace.space.env === undefined) {
             savedSpace.space.env = {};
+        }
+
+        if (savedSpace.space.lastUpdated === undefined) {
+            savedSpace.space.lastUpdated = new Date().toISOString();
         }
 
         return savedSpace;
