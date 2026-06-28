@@ -1,4 +1,4 @@
-import { singleton, inject } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import type { TDirectoryPath } from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
@@ -129,7 +129,7 @@ export class ConfigService {
         };
 
         return objects.reduce((prev, current) => {
-            if (!current) return prev;
+            if (!current) { return prev; }
 
             const next = { ...prev } as Record<string, any>;
 
@@ -153,8 +153,8 @@ export class ConfigService {
     private validate(config: IConfig): TResult<IConfig, string> {
         const errors: string[] = [];
 
-        if (!config.version) errors.push("No version specified");
-        if (!config.view) errors.push("No view mode specified");
+        if (!config.version) { errors.push("No version specified"); }
+        if (!config.view) { errors.push("No view mode specified"); }
 
         if (errors.length > 0) {
             return Result.error(

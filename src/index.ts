@@ -1,20 +1,22 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { ConfigService } from "./service/ConfigService.js";
+import { LoggerService } from "./service/LoggerService.js";
 import { SpaceService } from "./service/SpaceService.js";
 
 const configService = container.resolve(ConfigService);
 const spaceService = container.resolve(SpaceService);
+const loggerService = container.resolve(LoggerService);
 
-console.log("\nRunning with config:");
+loggerService.info("\nRunning with config:");
 const config = await configService.get();
-console.log(config);
+loggerService.info(config);
 
-console.log("\nAvailable spaces directories:");
-console.log(await spaceService.getSpacesPaths());
+loggerService.info("\nAvailable spaces directories:");
+loggerService.info(await spaceService.getSpacesPaths());
 
-console.log("\nSpaces:");
-console.log(await spaceService.list());
+loggerService.info("\nSpaces:");
+loggerService.info(await spaceService.list());
 
-console.log("\nActive Space:");
-console.log(await spaceService.getActive());
+loggerService.info("\nActive Space:");
+loggerService.info(await spaceService.getActive());

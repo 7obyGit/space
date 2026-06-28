@@ -1,13 +1,13 @@
-import { singleton, inject } from "tsyringe";
-import { Result, TResult } from "../types/Result.js";
 import JSON5 from "json5";
-import { FileService } from "./fs/FileService.js";
+import { inject, singleton } from "tsyringe";
 import type { TPath } from "../types/PathTypes.js";
+import { Result, TResult } from "../types/Result.js";
+import { FileService } from "./fs/FileService.js";
 
-export type IValidationResult = {
+export interface IValidationResult {
     valid: boolean;
     errors: string[];
-};
+}
 export type TJsonValidator = (obj: unknown) => IValidationResult;
 
 @singleton()

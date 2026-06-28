@@ -1,4 +1,4 @@
-import { singleton, inject } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import { Result, type TResult } from "../types/Result.js";
 import { ConfigService } from "./ConfigService.js";

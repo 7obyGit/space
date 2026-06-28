@@ -1,9 +1,9 @@
-import "reflect-metadata";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { container } from "tsyringe";
-import { PathService } from "../../../src/service/fs/PathService.js";
 import { homedir } from "node:os";
-import { resolve, join } from "node:path";
+import { join, resolve } from "node:path";
+import "reflect-metadata";
+import { container } from "tsyringe";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PathService } from "../../../src/service/fs/PathService.js";
 
 describe("PathService", () => {
     let pathService: PathService;

@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "tsx src/index.ts",
+        "lint": "tslint -p tsconfig.json",
         "test": "vitest run"
     },
     "repository": {
@@ -21,6 +22,7 @@
     "homepage": "https://github.com/7obyGit/space#readme",
     "devDependencies": {
         "@types/node": "^25.9.2",
+        "tslint": "^5.20.1",
         "tsx": "^4.22.4",
         "typescript": "^6.0.3",
         "vitest": "^4.1.9"

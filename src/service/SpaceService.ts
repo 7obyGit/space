@@ -1,4 +1,4 @@
-import { singleton, inject } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import type { TDirectoryPath, TFilePath } from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
@@ -111,7 +111,7 @@ export class SpaceService {
         );
 
         // Ensure all default space values are set
-        await this.save(loadedSpace)
+        await this.save(loadedSpace);
 
         await this.jsonService.save(spacePath, spaceContent);
 
@@ -208,7 +208,7 @@ export class SpaceService {
                     spacePath,
                 );
 
-                await this.save(loadedSpace)
+                await this.save(loadedSpace);
 
                 spaces.push(loadedSpace);
             }

@@ -1,8 +1,8 @@
-import "reflect-metadata";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { container } from "tsyringe";
-import { LinkService } from "../../../src/service/fs/LinkService.js";
 import * as fs from "node:fs/promises";
+import "reflect-metadata";
+import { container } from "tsyringe";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { LinkService } from "../../../src/service/fs/LinkService.js";
 
 vi.mock("node:fs/promises", () => ({
     symlink: vi.fn(),

@@ -1,4 +1,4 @@
-import { singleton, inject } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import type { TVersion } from "../types/Config.js";
 import type { TFilePath } from "../types/PathTypes.js";
 import type { TResult } from "../types/Result.js";

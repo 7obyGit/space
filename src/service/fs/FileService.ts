@@ -1,4 +1,3 @@
-import { singleton, inject } from "tsyringe";
 import {
     cp,
     lstat,
@@ -9,13 +8,14 @@ import {
     stat,
     writeFile,
 } from "node:fs/promises";
+import { inject, singleton } from "tsyringe";
+import type {
+    TDirectoryPath,
+    TFilePath,
+    TPath,
+} from "../../types/PathTypes.js";
 import { Result, type TResult } from "../../types/Result.js";
 import { PathService } from "./PathService.js";
-import type {
-    TPath,
-    TFilePath,
-    TDirectoryPath,
-} from "../../types/PathTypes.js";
 
 @singleton()
 export class FileService {

@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { container } from "tsyringe";
-import { ConfigService } from "../../src/service/ConfigService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppService } from "../../src/service/AppService.js";
+import { ConfigService } from "../../src/service/ConfigService.js";
 import { FileService } from "../../src/service/fs/FileService.js";
 import { PathService } from "../../src/service/fs/PathService.js";
 import { JsonService } from "../../src/service/JsonService.js";
@@ -38,7 +38,7 @@ describe("ConfigService", () => {
         container.registerInstance(LoggerService, mockLoggerService);
 
         configService = container.resolve(ConfigService);
-        
+
         vi.clearAllMocks();
     });
 
@@ -46,9 +46,9 @@ describe("ConfigService", () => {
         it("should return config if already loaded", async () => {
             const config = { version: "1.0.0", active: { path: "p" }, view: { type: "Workspace" } };
             (configService as any).config = config;
-            
+
             const result = await configService.get();
-            
+
             expect(result).toBe(config);
         });
 
@@ -58,11 +58,11 @@ describe("ConfigService", () => {
             mockJsonService.load.mockResolvedValue(Result.success({
                 version: "1.0.0",
                 active: { path: "active" },
-                view: { type: "Workspace" }
+                view: { type: "Workspace" },
             }));
 
             const result = await configService.get();
-            
+
             expect(result.version).toBe("1.0.0");
             expect(mockJsonService.load).toHaveBeenCalled();
         });
@@ -74,11 +74,11 @@ describe("ConfigService", () => {
             mockJsonService.load.mockResolvedValue(Result.success({
                 version: "1.0.0",
                 active: { path: "active" },
-                view: { type: "Workspace" }
+                view: { type: "Workspace" },
             }));
 
             await configService.get();
-            
+
             expect(mockJsonService.save).toHaveBeenCalled();
         });
     });

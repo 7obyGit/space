@@ -2,19 +2,28 @@ import { singleton } from "tsyringe";
 
 @singleton()
 export class LoggerService {
-    public debug(content: string): void {
-        console.debug(`debug:  ${content}`);
+    public log(level: string, content: any): string {
+        const timestamp = new Date().toISOString();
+        return `[${timestamp}] ${level}:  ${JSON.stringify(content, null, 2)}`;
     }
 
-    public info(content: string): void {
-        console.info(`info:  ${content}`);
+    public debug(content: any): void {
+        // tslint:disable-next-line:no-console
+        console.debug(this.log("debug", content));
     }
 
-    public warn(content: string): void {
-        console.warn(`warn:  ${content}`);
+    public info(content: any): void {
+        // tslint:disable-next-line:no-console
+        console.info(this.log("info", content));
     }
 
-    public error(content: string): void {
-        console.error(`error:  ${content}`);
+    public warn(content: any): void {
+        // tslint:disable-next-line:no-console
+        console.warn(this.log("warn", content));
+    }
+
+    public error(content: any): void {
+        // tslint:disable-next-line:no-console
+        console.error(this.log("error", content));
     }
 }

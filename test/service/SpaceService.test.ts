@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { container } from "tsyringe";
-import { SpaceService } from "../../src/service/SpaceService.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ConfigService } from "../../src/service/ConfigService.js";
 import { FileService } from "../../src/service/fs/FileService.js";
 import { PathService } from "../../src/service/fs/PathService.js";
 import { JsonService } from "../../src/service/JsonService.js";
 import { LoggerService } from "../../src/service/LoggerService.js";
+import { SpaceService } from "../../src/service/SpaceService.js";
 import { Result } from "../../src/types/Result.js";
 
 describe("SpaceService", () => {
@@ -39,7 +39,7 @@ describe("SpaceService", () => {
         container.registerInstance(LoggerService, mockLoggerService);
 
         spaceService = container.resolve(SpaceService);
-        
+
         vi.clearAllMocks();
     });
 
@@ -60,7 +60,7 @@ describe("SpaceService", () => {
             mockJsonService.save.mockResolvedValue(Result.success(undefined));
 
             const spaces = await spaceService.list();
-            
+
             expect(spaces.length).toBe(2); // One for spaces, one for .space/spaces (mocked join makes them distinct)
             expect(mockJsonService.load).toHaveBeenCalled();
         });
@@ -73,13 +73,13 @@ describe("SpaceService", () => {
             mockFileService.exists.mockResolvedValueOnce(false); // get(name) -> undefined
             mockFileService.exists.mockResolvedValueOnce(true);  // exists(spacesPath) -> true
             mockFileService.exists.mockResolvedValueOnce(true);  // get(name) again -> loaded
-            
+
             mockFileService.listFiles.mockResolvedValue(Result.success(["new.code-workspace"]));
             mockJsonService.load.mockResolvedValue(Result.success({ space: { name: "new" } }));
             mockJsonService.save.mockResolvedValue(Result.success(undefined));
 
             const space = await spaceService.create("new");
-            
+
             expect(space.space.name).toBe("new");
             expect(mockJsonService.save).toHaveBeenCalled();
         });
@@ -91,7 +91,7 @@ describe("SpaceService", () => {
             mockJsonService.load.mockResolvedValue(Result.success({ space: { name: "existing" } }));
 
             const space = await spaceService.create("existing");
-            
+
             expect(space.space.name).toBe("existing");
             expect(mockLoggerService.warn).toHaveBeenCalledWith(expect.stringContaining("already exists"));
         });
@@ -103,14 +103,14 @@ describe("SpaceService", () => {
             const newPath = "/path/new";
             const newSpace = { space: { name: "new", path: newPath } };
             const oldSpace = { space: { name: "old", path: "/path/old" } };
-            
+
             vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
             vi.spyOn(spaceService, "getActive").mockResolvedValue(oldSpace as any);
             mockConfigService.get.mockResolvedValue({ active: { path: activePath } });
             mockJsonService.save.mockResolvedValue(Result.success(undefined));
 
             const result = await spaceService.use("new");
-            
+
             expect(result.isSuccess()).toBe(true);
             expect(mockJsonService.save).toHaveBeenCalledWith(activePath, expect.anything());
         });
@@ -125,12 +125,12 @@ describe("SpaceService", () => {
         it("should return error if active space has no name", async () => {
             const newSpace = { space: { name: "new", path: "/path/new" } };
             const oldSpace = { space: { path: "/path/old" } }; // Missing name
-            
+
             vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
             vi.spyOn(spaceService, "getActive").mockResolvedValue(oldSpace as any);
-            
+
             const result = await spaceService.use("new");
-            
+
             expect(result.isError()).toBe(true);
             expect(result.getError()).toContain("No name present");
         });
@@ -153,7 +153,7 @@ describe("SpaceService", () => {
             mockJsonService.load.mockResolvedValue(Result.success({ space: { name: "active" } }));
 
             const result = await spaceService.delete("active");
-            
+
             expect(result.isSuccess()).toBe(true);
             expect(result.getValue()).toBe(false);
             expect(mockLoggerService.warn).toHaveBeenCalledWith(expect.stringContaining("currently active"));

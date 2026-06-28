@@ -1,28 +1,25 @@
-import { singleton } from "tsyringe";
+import { homedir } from "node:os";
 import {
-    resolve,
-    relative,
-    dirname,
     basename,
+    dirname,
     extname,
     isAbsolute,
     join,
     normalize,
+    relative,
+    resolve,
 } from "node:path";
-import { homedir } from "node:os";
+import { singleton } from "tsyringe";
 import type {
-    TPath,
     TDirectoryPath,
-    TFilePath,
-    TFileName,
     TFileExtension,
+    TFileName,
+    TFilePath,
+    TPath,
 } from "../../types/PathTypes.js";
 
 @singleton()
 export class PathService {
-    private expandHome(path: string): string {
-        return path.replace(/^~(?=$|\/|\\)/, homedir());
-    }
 
     public getCurrentWorkingDirectory(): TDirectoryPath {
         return process.cwd();
@@ -100,5 +97,8 @@ export class PathService {
 
     public normalize(path: TPath): TPath {
         return normalize(this.expandHome(path));
+    }
+    private expandHome(path: string): string {
+        return path.replace(/^~(?=$|\/|\\)/, homedir());
     }
 }

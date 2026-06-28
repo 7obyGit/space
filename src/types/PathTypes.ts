@@ -3,4 +3,4 @@ export type TFileName = string;
 export type TFilePath = string;
 export type TDirectoryPath = string;
 export type TPath = TFilePath | TDirectoryPath;
-export type TSymlink = { from: TPath; to: TPath };
+export interface TSymlink { from: TPath; to: TPath; }
