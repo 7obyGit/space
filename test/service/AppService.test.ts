@@ -32,18 +32,25 @@ describe("AppService", () => {
 
     describe("getVersion", () => {
         it("should return version from package.json", async () => {
-            mockJsonService.load.mockResolvedValue(Result.success({ version: "1.2.3" }));
+            mockJsonService.load.mockResolvedValue(
+                Result.success({ version: "1.2.3" }),
+            );
 
             const version = await appService.getVersion();
 
             expect(version).toBe("1.2.3");
-            expect(mockPathService.join).toHaveBeenCalledWith("/cwd", "package.json");
+            expect(mockPathService.join).toHaveBeenCalledWith(
+                "/cwd",
+                "package.json",
+            );
         });
 
         it("should throw error if package.json fails to load", async () => {
             mockJsonService.load.mockResolvedValue(Result.error("Load failed"));
 
-            await expect(appService.getVersion()).rejects.toThrow("Failed to read package version");
+            await expect(appService.getVersion()).rejects.toThrow(
+                "Failed to read package version",
+            );
         });
     });
 });

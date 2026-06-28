@@ -71,7 +71,9 @@ describe("FileService", () => {
 
             await fileService.read("test.txt");
 
-            expect(fs.mkdir).toHaveBeenCalledWith("parent", { recursive: true });
+            expect(fs.mkdir).toHaveBeenCalledWith("parent", {
+                recursive: true,
+            });
         });
 
         it("should return error on failure", async () => {
@@ -93,7 +95,11 @@ describe("FileService", () => {
             const result = await fileService.write("test.txt", "content");
 
             expect(result.isSuccess()).toBe(true);
-            expect(fs.writeFile).toHaveBeenCalledWith("test.txt", "content", "utf8");
+            expect(fs.writeFile).toHaveBeenCalledWith(
+                "test.txt",
+                "content",
+                "utf8",
+            );
         });
 
         it("should return error on write failure", async () => {
@@ -115,7 +121,9 @@ describe("FileService", () => {
             const result = await fileService.copy("src", "dest");
 
             expect(result.isSuccess()).toBe(true);
-            expect(fs.cp).toHaveBeenCalledWith("src", "dest", { recursive: true });
+            expect(fs.cp).toHaveBeenCalledWith("src", "dest", {
+                recursive: true,
+            });
         });
 
         it("should return error if source does not exist", async () => {

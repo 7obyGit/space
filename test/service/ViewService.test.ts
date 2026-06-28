@@ -37,7 +37,9 @@ describe("ViewService", () => {
                 view: { type: "Unknown" },
             });
 
-            await expect(viewService.refresh()).rejects.toThrow("Unknown view type");
+            await expect(viewService.refresh()).rejects.toThrow(
+                "Unknown view type",
+            );
         });
 
         it("should throw error for Folder view (not implemented)", async () => {
@@ -45,7 +47,9 @@ describe("ViewService", () => {
                 view: { type: "Folder" },
             });
 
-            await expect(viewService.refresh()).rejects.toThrow("Not implemented - refreshFolderView");
+            await expect(viewService.refresh()).rejects.toThrow(
+                "Not implemented - refreshFolderView",
+            );
         });
     });
 });

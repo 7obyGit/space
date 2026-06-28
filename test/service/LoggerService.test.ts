@@ -25,14 +25,18 @@ describe("LoggerService", () => {
     });
 
     it("should log info messages", () => {
-        const consoleSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "info")
+            .mockImplementation(() => {});
         const message = "test info message";
         loggerService.info(message);
         expect(stripAnsi(consoleSpy.mock.calls[0][0])).toBe(message);
     });
 
     it("should render markdown messages", () => {
-        const consoleSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "info")
+            .mockImplementation(() => {});
         const message = "# Header";
         loggerService.info(message);
         const calledWith = consoleSpy.mock.calls[0][0];
@@ -41,35 +45,45 @@ describe("LoggerService", () => {
     });
 
     it("should preserve existing chalk colors", () => {
-        const consoleSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "info")
+            .mockImplementation(() => {});
         const message = chalk.blue("blue message");
         loggerService.info(message);
         expect(consoleSpy.mock.calls[0][0]).toBe(message);
     });
 
     it("should log error messages", () => {
-        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "error")
+            .mockImplementation(() => {});
         const message = "test error message";
         loggerService.error(message);
         expect(stripAnsi(consoleSpy.mock.calls[0][0])).toBe(message);
     });
 
     it("should log warn messages", () => {
-        const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "warn")
+            .mockImplementation(() => {});
         const message = "test warn message";
         loggerService.warn(message);
         expect(stripAnsi(consoleSpy.mock.calls[0][0])).toBe(message);
     });
 
     it("should log debug messages", () => {
-        const consoleSpy = vi.spyOn(console, "debug").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "debug")
+            .mockImplementation(() => {});
         const message = "test debug message";
         loggerService.debug(message);
         expect(stripAnsi(consoleSpy.mock.calls[0][0])).toBe(message);
     });
 
     it("should log objects with timestamps in markdown blocks", () => {
-        const consoleSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+        const consoleSpy = vi
+            .spyOn(console, "info")
+            .mockImplementation(() => {});
         const obj = { foo: "bar" };
         loggerService.info(obj);
         const calledWith = consoleSpy.mock.calls[0][0];

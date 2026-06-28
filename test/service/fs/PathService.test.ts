@@ -66,7 +66,9 @@ describe("PathService", () => {
 
     describe("getParent", () => {
         it("should return parent directory", () => {
-            expect(pathService.getParent("/tmp/test/file.txt")).toBe(resolve("/tmp/test"));
+            expect(pathService.getParent("/tmp/test/file.txt")).toBe(
+                resolve("/tmp/test"),
+            );
         });
     });
 
@@ -88,7 +90,9 @@ describe("PathService", () => {
 
         it("should include CWD if requested", () => {
             const path = "/tmp";
-            const parents = pathService.getParents(path, { includeCurrentWorkingDirectory: true });
+            const parents = pathService.getParents(path, {
+                includeCurrentWorkingDirectory: true,
+            });
             expect(parents).toContain(process.cwd());
         });
     });

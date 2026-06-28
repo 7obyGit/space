@@ -20,7 +20,11 @@ export class LoggerService {
         return (marked(text) as string).trim();
     }
 
-    private formatMessage(level: string, content: any, colorFn: (text: string) => string): string {
+    private formatMessage(
+        level: string,
+        content: any,
+        colorFn: (text: string) => string,
+    ): string {
         const timestamp = new Date().toISOString();
         const jsonContent = JSON.stringify(content, null, 2);
         const header = colorFn(`[${timestamp}] ${level}:`);
@@ -29,33 +33,37 @@ export class LoggerService {
     }
 
     public debug(content: any): void {
-        const message = typeof content === "string"
-            ? this.render(content)
-            : this.formatMessage("DEBUG", content, chalk.blue);
+        const message =
+            typeof content === "string"
+                ? this.render(content)
+                : this.formatMessage("DEBUG", content, chalk.blue);
         // tslint:disable-next-line:no-console
         console.debug(message);
     }
 
     public info(content: any): void {
-        const message = typeof content === "string"
-            ? this.render(content)
-            : this.formatMessage("INFO", content, chalk.cyan);
+        const message =
+            typeof content === "string"
+                ? this.render(content)
+                : this.formatMessage("INFO", content, chalk.cyan);
         // tslint:disable-next-line:no-console
         console.info(message);
     }
 
     public warn(content: any): void {
-        const message = typeof content === "string"
-            ? this.render(content)
-            : this.formatMessage("WARN", content, chalk.yellow);
+        const message =
+            typeof content === "string"
+                ? this.render(content)
+                : this.formatMessage("WARN", content, chalk.yellow);
         // tslint:disable-next-line:no-console
         console.warn(message);
     }
 
     public error(content: any): void {
-        const message = typeof content === "string"
-            ? this.render(content)
-            : this.formatMessage("ERROR", content, chalk.red.bold);
+        const message =
+            typeof content === "string"
+                ? this.render(content)
+                : this.formatMessage("ERROR", content, chalk.red.bold);
         // tslint:disable-next-line:no-console
         console.error(message);
     }

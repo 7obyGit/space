@@ -20,7 +20,6 @@ import type {
 
 @singleton()
 export class PathService {
-
     public getCurrentWorkingDirectory(): TDirectoryPath {
         return process.cwd();
     }
@@ -71,10 +70,7 @@ export class PathService {
         return parents;
     }
 
-    public getName(
-        path: TFilePath,
-        extension?: TFileExtension,
-    ): TFileName {
+    public getName(path: TFilePath, extension?: TFileExtension): TFileName {
         return basename(this.expandHome(path), extension);
     }
 

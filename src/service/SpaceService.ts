@@ -26,13 +26,14 @@ export class SpaceService {
 
     public async getSpacesPaths(): Promise<TDirectoryPath[]> {
         // Generate candidate directories up to the root directory
-        const candidatePaths: TDirectoryPath[] = this.pathService.getParents(
-            this.pathService.getCurrentWorkingDirectory(),
-            { includeCurrentWorkingDirectory: true },
-        ).flatMap((path) => [
-            this.pathService.join(path, "spaces"),
-            this.pathService.join(path, ".space/spaces"),
-        ]);
+        const candidatePaths: TDirectoryPath[] = this.pathService
+            .getParents(this.pathService.getCurrentWorkingDirectory(), {
+                includeCurrentWorkingDirectory: true,
+            })
+            .flatMap((path) => [
+                this.pathService.join(path, "spaces"),
+                this.pathService.join(path, ".space/spaces"),
+            ]);
 
         // Filter to only those which exist
         const spacesPaths: TDirectoryPath[] = [];
@@ -132,9 +133,7 @@ export class SpaceService {
         return generatedSpace;
     }
 
-    public async use(
-        name: string,
-    ): Promise<TResult<ILoadedSpace, string>> {
+    public async use(name: string): Promise<TResult<ILoadedSpace, string>> {
         // Find the new space
         const newSpace: ILoadedSpace | undefined = await this.get(name);
         if (newSpace === undefined) {
@@ -217,14 +216,14 @@ export class SpaceService {
         return spaces;
     }
 
-    public async delete(
-        name: string,
-    ): Promise<TResult<boolean, string>> {
+    public async delete(name: string): Promise<TResult<boolean, string>> {
         const space: ILoadedSpace | undefined = await this.get(name);
 
         // Does the space exist?
         if (space === undefined) {
-            this.loggerService.warn(`Nothing to delete, '${name}' does not exist`);
+            this.loggerService.warn(
+                `Nothing to delete, '${name}' does not exist`,
+            );
             return Result.success(false);
         }
 
@@ -254,7 +253,10 @@ export class SpaceService {
 
     private async save(space: ILoadedSpace): Promise<void> {
         // Set default space config
-        const savedSpace: ISavedSpace = this.toSavedSpace(space, space.space.path);
+        const savedSpace: ISavedSpace = this.toSavedSpace(
+            space,
+            space.space.path,
+        );
 
         await this.jsonService.save(space.space.path, savedSpace);
     }
@@ -283,10 +285,7 @@ export class SpaceService {
         return savedSpace;
     }
 
-    private toLoadedSpace(
-        space: ISavedSpace,
-        path: TFilePath,
-    ): ILoadedSpace {
+    private toLoadedSpace(space: ISavedSpace, path: TFilePath): ILoadedSpace {
         // This creates a copy of the input space and ensures default values are set
         space = this.toSavedSpace(space, path);
 

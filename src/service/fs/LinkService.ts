@@ -17,9 +17,7 @@ export class LinkService {
     }
 
     // Gets the path the current link points to, may be another link
-    public async getLinkTarget(
-        path: TPath,
-    ): Promise<TResult<TPath, string>> {
+    public async getLinkTarget(path: TPath): Promise<TResult<TPath, string>> {
         try {
             return Result.success(await readlink(path));
         } catch (error) {
@@ -30,9 +28,7 @@ export class LinkService {
     }
 
     // Gets the real path the link point to, should not be a symlink
-    public async getRealPath(
-        path: TPath,
-    ): Promise<TResult<TPath, string>> {
+    public async getRealPath(path: TPath): Promise<TResult<TPath, string>> {
         try {
             return Result.success(await realpath(path));
         } catch (error) {

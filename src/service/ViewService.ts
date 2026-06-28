@@ -24,9 +24,7 @@ export class ViewService {
         return Result.success(true);
     }
 
-    private async refreshFolderView(): Promise<
-        TResult<boolean, string>
-    > {
+    private async refreshFolderView(): Promise<TResult<boolean, string>> {
         // TODO: Implement this
         // This view assumes the user has a folder open in VSCode
         // - "view directory" is symlink to "backing directory"
@@ -39,9 +37,7 @@ export class ViewService {
         throw new Error("Not implemented - refreshFolderView");
     }
 
-    private async refreshWorkspaceView(): Promise<
-        TResult<boolean, string>
-    > {
+    private async refreshWorkspaceView(): Promise<TResult<boolean, string>> {
         // Workspace view uses the open VSCode workspace file - no tweaks needed
         return Result.success(true);
     }

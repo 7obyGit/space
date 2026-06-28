@@ -65,9 +65,7 @@ export class FileService {
         }
     }
 
-    public async read(
-        path: TFilePath,
-    ): Promise<TResult<string, string>> {
+    public async read(path: TFilePath): Promise<TResult<string, string>> {
         path = this.pathService.toAbsolute(path);
 
         const parentDirectory: string = this.pathService.getParent(path);

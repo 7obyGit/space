@@ -1,14 +1,12 @@
 export type TSuccessResult<TSuccess> = Result<TSuccess, undefined>;
 export type TErrorResult<TError> = Result<undefined, TError>;
 export type TResult<TSuccess, TError> =
-    | TSuccessResult<TSuccess>
-    | TErrorResult<TError>;
+    TSuccessResult<TSuccess> | TErrorResult<TError>;
 
 export type TSuccessHandler<TSuccess, TOutput> = (value: TSuccess) => TOutput;
 export type TErrorHandler<TError, TOutput> = (error: TError) => TOutput;
 
 export class Result<TSuccess, TError> {
-
     public static success<TSuccess>(value: TSuccess): TSuccessResult<TSuccess> {
         return new Result(true, value, undefined) as TSuccessResult<TSuccess>;
     }
@@ -20,11 +18,7 @@ export class Result<TSuccess, TError> {
     private readonly error?: TError = undefined;
     private readonly isSuccessStatus: boolean;
 
-    private constructor(
-        isSuccess: boolean,
-        value?: TSuccess,
-        error?: TError,
-    ) {
+    private constructor(isSuccess: boolean, value?: TSuccess, error?: TError) {
         this.isSuccessStatus = isSuccess;
         this.value = value;
         this.error = error;

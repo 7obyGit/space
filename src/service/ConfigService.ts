@@ -72,10 +72,11 @@ export class ConfigService {
     }
 
     private async getConfigPaths(): Promise<TDirectoryPath[]> {
-        const candidateConfigPaths: TDirectoryPath[] = this.pathService.getParents(
-            this.pathService.getCurrentWorkingDirectory(),
-            { includeCurrentWorkingDirectory: true },
-        ).map((path) => this.pathService.join(path, ".space/config.json"));
+        const candidateConfigPaths: TDirectoryPath[] = this.pathService
+            .getParents(this.pathService.getCurrentWorkingDirectory(), {
+                includeCurrentWorkingDirectory: true,
+            })
+            .map((path) => this.pathService.join(path, ".space/config.json"));
 
         const configPaths: TDirectoryPath[] = [];
         for (const candidatePath of candidateConfigPaths) {
@@ -129,7 +130,9 @@ export class ConfigService {
         };
 
         return objects.reduce((prev, current) => {
-            if (!current) { return prev; }
+            if (!current) {
+                return prev;
+            }
 
             const next = { ...prev } as Record<string, any>;
 
@@ -153,8 +156,12 @@ export class ConfigService {
     private validate(config: IConfig): TResult<IConfig, string> {
         const errors: string[] = [];
 
-        if (!config.version) { errors.push("No version specified"); }
-        if (!config.view) { errors.push("No view mode specified"); }
+        if (!config.version) {
+            errors.push("No version specified");
+        }
+        if (!config.view) {
+            errors.push("No view mode specified");
+        }
 
         if (errors.length > 0) {
             return Result.error(

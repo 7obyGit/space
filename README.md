@@ -3,8 +3,8 @@
 ## Setup
 
 - This project uses `aw` for script management:
-  - `npm install -g aw`
-  - `aw run space list` (to test running the `space list` command)
+    - `npm install -g aw`
+    - `aw run space list` (to test running the `space list` command)
 
 ## Concepts
 

@@ -27,7 +27,9 @@ describe("JsonService", () => {
     describe("parse", () => {
         it("should parse valid JSON5", () => {
             const json = "{ name: 'test', count: 1 }";
-            const result = jsonService.parse<{name: string, count: number}>(json);
+            const result = jsonService.parse<{ name: string; count: number }>(
+                json,
+            );
 
             expect(result.isSuccess()).toBe(true);
             expect(result.getValue()).toEqual({ name: "test", count: 1 });
@@ -43,7 +45,9 @@ describe("JsonService", () => {
 
         it("should use validator if provided", () => {
             const json = "{ name: 'test' }";
-            const validator = vi.fn().mockReturnValue({ valid: false, errors: ["Invalid"] });
+            const validator = vi
+                .fn()
+                .mockReturnValue({ valid: false, errors: ["Invalid"] });
 
             const result = jsonService.parse(json, validator);
 
@@ -59,7 +63,7 @@ describe("JsonService", () => {
             const content = "{ key: 'value' }";
             mockFileService.read.mockResolvedValue(Result.success(content));
 
-            const result = await jsonService.load<{key: string}>(path);
+            const result = await jsonService.load<{ key: string }>(path);
 
             expect(mockFileService.read).toHaveBeenCalledWith(path);
             expect(result.isSuccess()).toBe(true);
@@ -68,7 +72,9 @@ describe("JsonService", () => {
 
         it("should return error if file read fails", async () => {
             const path = "missing.json";
-            mockFileService.read.mockResolvedValue(Result.error("File not found"));
+            mockFileService.read.mockResolvedValue(
+                Result.error("File not found"),
+            );
 
             const result = await jsonService.load(path);
 
@@ -105,7 +111,10 @@ describe("JsonService", () => {
 
             const result = await jsonService.save(path, obj);
 
-            expect(mockFileService.write).toHaveBeenCalledWith(path, JSON.stringify(obj, null, 4));
+            expect(mockFileService.write).toHaveBeenCalledWith(
+                path,
+                JSON.stringify(obj, null, 4),
+            );
             expect(result.isSuccess()).toBe(true);
         });
     });
