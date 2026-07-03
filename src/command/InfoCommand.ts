@@ -30,11 +30,17 @@ export class InfoCommand extends BaseCommand {
             return;
         }
 
-        this.loggerService.info(chalk.cyan.bold("\n🚀  Current Active Space\n"));
+        this.loggerService.info(
+            chalk.cyan.bold("\n🚀  Current Active Space\n"),
+        );
 
         const displayName = chalk.bold(active.space.name);
-        const displayPath = this.pathService.formatDisplayPath(active.space.path);
-        this.loggerService.info(`  ${chalk.yellow("●")} ${displayName} - ${chalk.cyan(displayPath)}`);
+        const displayPath = this.pathService.formatDisplayPath(
+            active.space.path,
+        );
+        this.loggerService.info(
+            `  ${chalk.yellow("●")} ${displayName} - ${chalk.cyan(displayPath)}`,
+        );
 
         if (active.folders && active.folders.length > 0) {
             this.loggerService.info(chalk.white.bold("\n  Folders:"));
@@ -43,7 +49,8 @@ export class InfoCommand extends BaseCommand {
             active.folders.forEach((folder) => {
                 const folderPath =
                     (folder as any).path || (folder as any).uri || "Unknown";
-                const displayFolderPath = this.pathService.formatDisplayPath(folderPath);
+                const displayFolderPath =
+                    this.pathService.formatDisplayPath(folderPath);
                 const folderName = folder.name || "-";
                 foldersTable += `| ${chalk.green(folderName)} | ${chalk.cyan(displayFolderPath)} |\n`;
             });
@@ -58,7 +65,8 @@ export class InfoCommand extends BaseCommand {
             let filesTable = "| File Path |\n";
             filesTable += "| --- |\n";
             active.space.attachedFiles.forEach((file) => {
-                const displayFilePath = this.pathService.formatDisplayPath(file);
+                const displayFilePath =
+                    this.pathService.formatDisplayPath(file);
                 filesTable += `| ${chalk.cyan(displayFilePath)} |\n`;
             });
             this.loggerService.info(filesTable);

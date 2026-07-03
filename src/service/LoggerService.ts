@@ -18,7 +18,10 @@ export class LoggerService {
     }
 
     private render(text: string): string {
-        return (marked(text) as string).trim().replace(/^\u001b\[0m/, "").replace(/\u001b\[0m$/, "");
+        return (marked(text) as string)
+            .trim()
+            .replace(/^\u001b\[0m/, "")
+            .replace(/\u001b\[0m$/, "");
     }
 
     private formatMessage(

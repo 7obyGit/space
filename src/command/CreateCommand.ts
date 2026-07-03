@@ -20,7 +20,9 @@ export class CreateCommand extends BaseCommand {
                 `Successfully created space: ${chalk.green(chalk.bold(space.space.name))}`,
             );
         } catch (error) {
-            this.loggerService.error(`Failed to create space: ${error instanceof Error ? error.message : error}`);
+            this.loggerService.error(
+                `Failed to create space: ${error instanceof Error ? error.message : error}`,
+            );
             return 1;
         }
     }

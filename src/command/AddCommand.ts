@@ -16,7 +16,9 @@ export class AddCommand extends BaseCommand {
     public folderPath = Option.String({ name: "path", required: false });
 
     public async execute() {
-        const result = await this.spaceService.addFolderToActive(this.folderPath);
+        const result = await this.spaceService.addFolderToActive(
+            this.folderPath,
+        );
         if (result.isError()) {
             this.loggerService.error(result.getError());
             return 1;
@@ -25,6 +27,8 @@ export class AddCommand extends BaseCommand {
             ? this.pathService.toAbsolute(this.folderPath)
             : this.pathService.getCurrentWorkingDirectory();
         const displayPath = this.pathService.formatDisplayPath(targetPath);
-        this.loggerService.info(`Added folder ${chalk.cyan(chalk.bold(displayPath))} to active space.`);
+        this.loggerService.info(
+            `Added folder ${chalk.cyan(chalk.bold(displayPath))} to active space.`,
+        );
     }
 }

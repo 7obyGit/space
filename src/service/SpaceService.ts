@@ -110,7 +110,9 @@ export class SpaceService {
                 "window.title": `\${dirty}\${activeEditorShort} - ${name} (Space)`,
             },
             space: {
-                attachedFiles: [this.pathService.toAbsolute(config.active.path)],
+                attachedFiles: [
+                    this.pathService.toAbsolute(config.active.path),
+                ],
                 lastUpdated: new Date().toISOString(),
             },
         };
@@ -378,7 +380,11 @@ export class SpaceService {
         for (const [key, value] of Object.entries(env)) {
             if (typeof value === "string") {
                 resolvedEnv[key] = value;
-            } else if (typeof value === "object" && value !== null && "command" in value) {
+            } else if (
+                typeof value === "object" &&
+                value !== null &&
+                "command" in value
+            ) {
                 const result = await this.terminalService.run(value.command);
                 if (result.isSuccess()) {
                     const terminalResult = result.getValue()!;

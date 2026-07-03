@@ -37,7 +37,9 @@ export class EnvCommand extends BaseCommand {
 
         const entries = Object.entries(env);
         if (entries.length === 0) {
-            this.loggerService.info(chalk.yellow("  No environment variables found."));
+            this.loggerService.info(
+                chalk.yellow("  No environment variables found."),
+            );
             return;
         }
 

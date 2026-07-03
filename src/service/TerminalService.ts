@@ -5,11 +5,17 @@ import type { ITerminalResult } from "../types/Terminal.js";
 
 @singleton()
 export class TerminalService {
-    public async run(command: string): Promise<TResult<ITerminalResult, string>> {
+    public async run(
+        command: string,
+    ): Promise<TResult<ITerminalResult, string>> {
         return new Promise((resolve) => {
             exec(command, (error, stdout, stderr) => {
                 if (error && error.code === undefined) {
-                    resolve(Result.error(`Failed to execute command: ${error.message}`));
+                    resolve(
+                        Result.error(
+                            `Failed to execute command: ${error.message}`,
+                        ),
+                    );
                     return;
                 }
 

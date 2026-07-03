@@ -16,7 +16,9 @@ export class RemoveCommand extends BaseCommand {
     public folderPath = Option.String({ name: "path", required: false });
 
     public async execute() {
-        const result = await this.spaceService.removeFolderFromActive(this.folderPath);
+        const result = await this.spaceService.removeFolderFromActive(
+            this.folderPath,
+        );
         if (result.isError()) {
             this.loggerService.error(result.getError());
             return 1;
@@ -25,6 +27,8 @@ export class RemoveCommand extends BaseCommand {
             ? this.pathService.toAbsolute(this.folderPath)
             : this.pathService.getCurrentWorkingDirectory();
         const displayPath = this.pathService.formatDisplayPath(targetPath);
-        this.loggerService.info(`Removed folder ${chalk.cyan(chalk.bold(displayPath))} from active space.`);
+        this.loggerService.info(
+            `Removed folder ${chalk.cyan(chalk.bold(displayPath))} from active space.`,
+        );
     }
 }

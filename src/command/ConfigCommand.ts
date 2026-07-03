@@ -15,7 +15,9 @@ export class ConfigCommand extends BaseCommand {
             const config = await this.configService.get();
             this.loggerService.log(JSON.stringify(config, null, 2));
         } catch (error) {
-            this.loggerService.error(`Failed to load config: ${error instanceof Error ? error.message : error}`);
+            this.loggerService.error(
+                `Failed to load config: ${error instanceof Error ? error.message : error}`,
+            );
             return 1;
         }
     }
