@@ -77,12 +77,11 @@
                 }
             ],
             [
-                "@semantic-release/exec",
+                "@semantic-release/github",
                 {
-                    "publishCmd": "npm publish --provenance --access public"
+                    "makeLatest": true
                 }
-            ],
-            "@semantic-release/github"
+            ]
         ]
     },
     "publishConfig": {

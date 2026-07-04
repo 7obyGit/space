@@ -32,4 +32,8 @@ jobs:
             - run: npm run build
 
             - name: Release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: npx semantic-release
+
+            - run: npm publish --provenance
