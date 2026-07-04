@@ -4,7 +4,7 @@
     "description": "A powerful CLI tool for managing dynamic VS Code workspaces. Switch contexts, manage environment variables, and attach files on the fly.",
     "main": "dist/index.js",
     "bin": {
-        "space": "./dist/index.js"
+        "space": "dist/index.js"
     },
     "scripts": {
         "prepare": "husky",
