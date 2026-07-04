@@ -34,28 +34,3 @@ See [docs/installation.md](docs/installation.md) for more details.
 ## Ideas
 
 - Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
-
-## TODO
-
-- Workspace name config (setting to make it show up correctly in vscode)
-
-The intention for "scratch" spaces is to provide a temporary workspace, which will not be saved permanently
-to make changes safely without affecting anything
-
-`space clone` -> check if in git repo, if so, get url, clone in to a `/tmp/space/<uuid>/` directory
-generate a workspace file for it, which should be completely independent of the "active" workspace
-there should be an "attached files" folder, like normal, but this time create the folder inside the tmp directory with the cloned repo
-add a symlink to the actual workspace file in the attached files folder (and put in the attached files section of the workspace file for good measure)
-
-If it is not a repo, then simply make a copy of the cwd in the tmp folder
-
-Gather info about the source and add to the "space" section of the workspace file
-
-Finally, open the created scratch workspace in a new vscode window
-
-Add useful scripts to the scratch space so i can run:
-
-- `space run <name>` -> run useful helper script for scratch spaces
-- Any scripts which might be useful - basically just create a bunch of draft suggeetions (all fairly simple) that i can pick from to add
-
-Add docs for scratch spaces

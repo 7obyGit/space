@@ -7,12 +7,12 @@ Scratch spaces provide a temporary workspace that is not saved permanently in yo
 To create a new scratch space, run:
 
 ```bash
-space clone
+space clone [url]
 ```
 
 ### How it works:
 
-1. **Detection**: `space` checks if the current working directory is part of a Git repository.
+1. **Detection**: If a `url` is provided, `space` uses it as the source. Otherwise, it checks if the current working directory is part of a Git repository.
 2. **Copying**:
     - If it's a **Git repository**, `space` finds the remote URL and clones it into a new temporary directory in `/tmp/space/<uuid>/`.
     - If it's **not a repository**, `space` simply copies the current working directory into the temporary directory.
@@ -29,12 +29,14 @@ Once inside a scratch space, you can use all standard `space` commands. Scratch 
 
 You can run common commands using `space run <name>`:
 
-- `space run status`: Run `git status`
-- `space run diff`: Run `git diff`
-- `space run log`: Show the last 10 git commits
-- `space run install`: Run `npm install`
-- `space run test`: Run `npm test`
-- `space run build`: Run `npm run build`
+- `space run workspace-edit`: Open the workspace file for editing
+- `space run workspace-info`: Show information about the scratch space
+- `space run workspace-attached`: Open the attached files folder in VS Code
+- `space run workspace-save`: Show instructions on how to save the scratch space permanently
+- `space run git-status`: Run `git status`
+- `space run npm-install`: Run `npm install`
+- `space run npm-test`: Run `npm test`
+- `space run npm-run`: Run `npm run`
 
 ## Cleanup
 

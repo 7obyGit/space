@@ -45,7 +45,13 @@ describe("SpaceService", () => {
             getParents: vi.fn(() => []),
             getParent: vi.fn((p) => p.split("/").slice(0, -1).join("/") || "/"),
             getCurrentWorkingDirectory: vi.fn(() => "/cwd"),
-            getName: vi.fn((p) => p),
+            getName: vi.fn((p, ext) => {
+                const name = p.split("/").pop() || "";
+                if (ext && name.endsWith(ext)) {
+                    return name.slice(0, -ext.length);
+                }
+                return name;
+            }),
             getExtension: vi.fn(() => ".json"),
             toAbsolute: vi.fn((p) => p),
             isAbsolute: vi.fn((p) => p.startsWith("/")),
@@ -337,7 +343,7 @@ describe("SpaceService", () => {
     describe("clone", () => {
         it("should create a scratch space from a git repo", async () => {
             const gitRoot = "/git-root";
-            const remoteUrl = "https://github.com/user/repo.git";
+            const remoteUrl = "https://github.com/user/my-repo.git";
             mockPathService.getCurrentWorkingDirectory.mockReturnValue("/cwd");
             mockGitService.getGitRoot.mockResolvedValue(gitRoot);
             mockGitService.getRemoteUrl.mockResolvedValue(remoteUrl);
@@ -350,6 +356,10 @@ describe("SpaceService", () => {
             expect(result).toContain("scratch.code-workspace");
             expect(mockGitService.clone).toHaveBeenCalledWith(
                 remoteUrl,
+                expect.stringContaining("/my-repo"),
+            );
+            expect(mockGitService.clone).not.toHaveBeenCalledWith(
+                remoteUrl,
                 expect.stringContaining("/repo"),
             );
             expect(mockJsonService.save).toHaveBeenCalled();
@@ -357,11 +367,13 @@ describe("SpaceService", () => {
             expect(savedContent.space.source.type).toBe("git");
             expect(savedContent.space.source.url).toBe(remoteUrl);
             expect(savedContent.space.scripts).toBeDefined();
-            expect(savedContent.space.scripts.status).toBe("git status");
+            expect(savedContent.space.scripts["git-status"]).toBe("git status");
         });
 
         it("should create a scratch space from a directory if not a git repo", async () => {
-            mockPathService.getCurrentWorkingDirectory.mockReturnValue("/cwd");
+            mockPathService.getCurrentWorkingDirectory.mockReturnValue(
+                "/cwd/my-project",
+            );
             mockGitService.getGitRoot.mockResolvedValue(undefined);
             mockFileService.copy.mockResolvedValue(Result.success(undefined));
             mockJsonService.save.mockResolvedValue(Result.success(undefined));
@@ -370,11 +382,29 @@ describe("SpaceService", () => {
 
             expect(result).toContain("/tmp/space/");
             expect(mockFileService.copy).toHaveBeenCalledWith(
-                "/cwd",
-                expect.stringContaining("/repo"),
+                "/cwd/my-project",
+                expect.stringContaining("/my-project"),
             );
             const savedContent = mockJsonService.save.mock.calls[0][1];
             expect(savedContent.space.source.type).toBe("directory");
+        });
+
+        it("should create a scratch space from a provided URL", async () => {
+            const url = "https://github.com/user/other-repo.git";
+            mockPathService.getCurrentWorkingDirectory.mockReturnValue("/cwd");
+            mockGitService.clone.mockResolvedValue(undefined);
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.clone(url);
+
+            expect(result).toContain("/tmp/space/");
+            expect(mockGitService.clone).toHaveBeenCalledWith(
+                url,
+                expect.stringContaining("/other-repo"),
+            );
+            const savedContent = mockJsonService.save.mock.calls[0][1];
+            expect(savedContent.space.source.type).toBe("git");
+            expect(savedContent.space.source.url).toBe(url);
         });
     });
 });

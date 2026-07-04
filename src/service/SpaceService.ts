@@ -2,7 +2,11 @@ import { aw } from "@7obygit/aw";
 import { randomUUID } from "node:crypto";
 import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
-import type { TDirectoryPath, TFilePath } from "../types/PathTypes.js";
+import type {
+    TDirectoryPath,
+    TFileExtension,
+    TFilePath,
+} from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
 import type {
     ILoadedSpace,
@@ -223,14 +227,11 @@ export class SpaceService {
         return loadedSpace;
     }
 
-    public async clone(): Promise<TFilePath> {
+    public async clone(url?: string): Promise<TFilePath> {
         const cwd = this.pathService.getCurrentWorkingDirectory();
         const uuid = randomUUID();
         const tmpDir = `/tmp/space/${uuid}` as TDirectoryPath;
-        const repoPath = this.pathService.join(
-            tmpDir,
-            "repo",
-        ) as TDirectoryPath;
+
         const attachedFilesPath = this.pathService.join(
             tmpDir,
             "attached-files",
@@ -239,26 +240,64 @@ export class SpaceService {
         await this.fileService.createDirectory(tmpDir);
         await this.fileService.createDirectory(attachedFilesPath);
 
-        const gitRoot = await this.gitService.getGitRoot(cwd);
-        let sourceInfo: any = {
-            type: "directory",
-            path: cwd,
-        };
+        let sourceInfo: any;
+        let folderName = "repo";
+        let sourcePath = cwd;
 
-        if (gitRoot) {
-            const remoteUrl = await this.gitService.getRemoteUrl(gitRoot);
-            if (remoteUrl) {
-                await this.gitService.clone(remoteUrl, repoPath);
-                sourceInfo = {
-                    type: "git",
-                    url: remoteUrl,
-                    path: gitRoot,
-                };
-            } else {
-                await this.fileService.copy(gitRoot, repoPath);
-            }
+        if (url) {
+            sourceInfo = {
+                type: "git",
+                url,
+            };
+            folderName = this.pathService.getName(
+                url as TFilePath,
+                ".git" as TFileExtension,
+            );
         } else {
-            await this.fileService.copy(cwd, repoPath);
+            const gitRoot = await this.gitService.getGitRoot(cwd);
+            sourceInfo = {
+                type: "directory",
+                path: cwd,
+            };
+
+            if (gitRoot) {
+                const remoteUrl = await this.gitService.getRemoteUrl(gitRoot);
+                if (remoteUrl) {
+                    folderName = this.pathService.getName(
+                        remoteUrl as TFilePath,
+                        ".git" as TFileExtension,
+                    );
+                    sourceInfo = {
+                        type: "git",
+                        url: remoteUrl,
+                        path: gitRoot,
+                    };
+                } else {
+                    folderName = this.pathService.getName(gitRoot as TFilePath);
+                    sourcePath = gitRoot;
+                }
+            } else {
+                folderName = this.pathService.getName(cwd as TFilePath);
+            }
+        }
+
+        if (!folderName || folderName === "/" || folderName === ".") {
+            folderName = "repo";
+        }
+
+        if (folderName === "attached-files") {
+            folderName = "source";
+        }
+
+        const repoPath = this.pathService.join(
+            tmpDir,
+            folderName,
+        ) as TDirectoryPath;
+
+        if (sourceInfo.type === "git" && sourceInfo.url) {
+            await this.gitService.clone(sourceInfo.url, repoPath);
+        } else {
+            await this.fileService.copy(sourcePath, repoPath);
         }
 
         const workspaceFilePath = this.pathService.join(
@@ -298,14 +337,7 @@ export class SpaceService {
     }
 
     private getScratchScripts(): ISpaceScripts {
-        return {
-            status: "git status",
-            diff: "git diff",
-            log: "git log --oneline -n 10",
-            install: "npm install",
-            test: "npm test",
-            build: "npm run build",
-        };
+        return {};
     }
 
     public async use(
