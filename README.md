@@ -55,4 +55,4 @@
 }
 ```
 
-- `aw` support for space scripts and env vars - integration
+- `aw.run(script, env) or aw.exec(command, env)` support for space scripts and env vars - integration
