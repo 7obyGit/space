@@ -19,6 +19,13 @@ jobs:
               with:
                   # Use persist-credentials: false to allow semantic-release to push with its own token
                   persist-credentials: false
+                  fetch-depth: 0 # Fetches all history for all branches and tags
+
+            - name: Sync and prune Git tags
+              run: |
+                  git fetch --prune --prune-tags origin
+                  git tag -l
+
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
