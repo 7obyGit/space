@@ -60,18 +60,18 @@ describe("SpaceService Relative Paths", () => {
                 folders: [
                     { path: "src" },
                     { path: "../other/lib" },
-                    { path: "/absolute/path" }
+                    { path: "/absolute/path" },
                 ],
                 space: {
                     attachedFiles: [
                         "docs/readme.md",
-                        "../config/settings.json"
-                    ]
-                }
+                        "../config/settings.json",
+                    ],
+                },
             };
 
             mockConfigService.get.mockResolvedValue({
-                active: { path: workspacePath }
+                active: { path: workspacePath },
             });
             mockFileService.exists.mockResolvedValue(true);
             mockJsonService.load.mockResolvedValue(Result.success(savedSpace));
@@ -82,8 +82,12 @@ describe("SpaceService Relative Paths", () => {
             expect(loadedSpace!.folders[0].path).toBe("/home/user/project/src");
             expect(loadedSpace!.folders[1].path).toBe("/home/user/other/lib");
             expect(loadedSpace!.folders[2].path).toBe("/absolute/path");
-            expect(loadedSpace!.space.attachedFiles[0]).toBe("/home/user/project/docs/readme.md");
-            expect(loadedSpace!.space.attachedFiles[1]).toBe("/home/user/config/settings.json");
+            expect(loadedSpace!.space.attachedFiles[0]).toBe(
+                "/home/user/project/docs/readme.md",
+            );
+            expect(loadedSpace!.space.attachedFiles[1]).toBe(
+                "/home/user/config/settings.json",
+            );
         });
     });
 
@@ -91,16 +95,12 @@ describe("SpaceService Relative Paths", () => {
         it("should NOT make absolute paths relative if they don't meet criteria", async () => {
             const workspacePath = "/home/user/project/my.code-workspace";
             const loadedSpace: any = {
-                folders: [
-                    { path: "/other/path/src" }
-                ],
+                folders: [{ path: "/other/path/src" }],
                 space: {
                     name: "my",
                     path: workspacePath,
-                    attachedFiles: [
-                        "/another/file.txt"
-                    ]
-                }
+                    attachedFiles: ["/another/file.txt"],
+                },
             };
 
             await (spaceService as any).save(loadedSpace);
@@ -116,40 +116,42 @@ describe("SpaceService Relative Paths", () => {
             const workspacePath = "/home/user/project/my.code-workspace";
             const targetPath = "/some/external/repo/src";
             const loadedSpace: any = {
-                folders: [
-                    { path: targetPath }
-                ],
+                folders: [{ path: targetPath }],
                 space: {
                     name: "my",
                     path: workspacePath,
-                    attachedFiles: []
-                }
+                    attachedFiles: [],
+                },
             };
 
-            mockGitService.isSameRepo.mockImplementation(async (a: string, b: string) => {
-                return (a === workspacePath && b === targetPath);
-            });
+            mockGitService.isSameRepo.mockImplementation(
+                async (a: string, b: string) => {
+                    return a === workspacePath && b === targetPath;
+                },
+            );
 
             await (spaceService as any).save(loadedSpace);
 
             expect(mockJsonService.save).toHaveBeenCalled();
             const savedSpace = mockJsonService.save.mock.calls[0][1];
 
-            expect(savedSpace.folders[0].path).toBe("../../../some/external/repo/src");
+            expect(savedSpace.folders[0].path).toBe(
+                "../../../some/external/repo/src",
+            );
         });
 
         it("should make paths relative if they are beneath the .space parent directory", async () => {
             const projectRoot = "/home/user/project";
             const workspacePath = `${projectRoot}/.space/spaces/my.code-workspace`;
             const targetPath = `${projectRoot}/src/main.ts`;
-            
+
             const loadedSpace: any = {
                 folders: [],
                 space: {
                     name: "my",
                     path: workspacePath,
-                    attachedFiles: [targetPath]
-                }
+                    attachedFiles: [targetPath],
+                },
             };
 
             await (spaceService as any).save(loadedSpace);
@@ -165,16 +167,14 @@ describe("SpaceService Relative Paths", () => {
         it("should handle paths relative to workspace file in .space/spaces/", async () => {
             const projectRoot = "/home/user/project";
             const workspacePath = `${projectRoot}/.space/spaces/my.code-workspace`;
-            
+
             const loadedSpace: any = {
-                folders: [
-                    { path: projectRoot }
-                ],
+                folders: [{ path: projectRoot }],
                 space: {
                     name: "my",
                     path: workspacePath,
-                    attachedFiles: []
-                }
+                    attachedFiles: [],
+                },
             };
 
             await (spaceService as any).save(loadedSpace);

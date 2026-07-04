@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { CliController } from "./controller/CliController.js";

@@ -1,10 +1,14 @@
 # space
 
-## Setup
+## Installation
 
-- This project uses `aw` for script management:
-    - `npm install -g aw`
-    - `aw run space list` (to test running the `space list` command)
+To install `space` globally, run:
+
+```bash
+npm install -g @7obygit/space
+```
+
+See [docs/installation.md](docs/installation.md) for more details.
 
 ## Concepts
 

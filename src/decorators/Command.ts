@@ -26,7 +26,7 @@ export function Command(path: string | symbol | any[], description?: string) {
         }
 
         if (commandName) {
-            constructor.prototype.execute = async function (...args: any[]) {
+            constructor.prototype.execute = async function(...args: any[]) {
                 const spaceService = container.resolve(SpaceService);
                 await spaceService.runHook(commandName!, "pre-command");
                 await spaceService.runHook(commandName!, "command");

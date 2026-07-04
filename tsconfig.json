@@ -8,6 +8,8 @@
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "noEmit": true
-    }
+        "outDir": "dist",
+        "rootDir": "src"
+    },
+    "include": ["src/**/*"]
 }

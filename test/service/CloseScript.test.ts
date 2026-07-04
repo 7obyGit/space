@@ -45,6 +45,9 @@ describe("SpaceService Close Script", () => {
             getName: vi.fn((p) => p),
             getExtension: vi.fn(() => ".json"),
             toAbsolute: vi.fn((p) => p),
+            getParent: vi.fn((p) => p.split("/").slice(0, -1).join("/") || "/"),
+            isAbsolute: vi.fn((p) => p.startsWith("/")),
+            toRelative: vi.fn((from, to) => to),
         };
         mockJsonService = { load: vi.fn(), save: vi.fn() };
         mockLoggerService = { warn: vi.fn(), info: vi.fn(), error: vi.fn() };

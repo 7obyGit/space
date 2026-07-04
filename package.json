@@ -1,9 +1,13 @@
 {
-    "name": "space",
+    "name": "@7obygit/space",
     "version": "0.0.1",
     "description": "",
     "main": "index.js",
+    "bin": {
+        "space": "./dist/index.js"
+    },
     "scripts": {
+        "build": "tsc",
         "dev": "tsx src/index.ts",
         "lint": "tslint -p tsconfig.json",
         "lint:fix": "tslint -p tsconfig.json --fix",

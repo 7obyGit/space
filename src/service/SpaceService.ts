@@ -8,10 +8,10 @@ import { ConfigService } from "./ConfigService.js";
 import { FileService } from "./fs/FileService.js";
 import { LinkService } from "./fs/LinkService.js";
 import { PathService } from "./fs/PathService.js";
+import { GitService } from "./GitService.js";
 import { JsonService } from "./JsonService.js";
 import { LoggerService } from "./LoggerService.js";
 import { TerminalService } from "./TerminalService.js";
-import { GitService } from "./GitService.js";
 
 @singleton()
 export class SpaceService {
@@ -495,9 +495,9 @@ export class SpaceService {
                 );
                 await aw.exec(script["pre-command"], env);
             }
-            if (script["command"]) {
+            if (script.command) {
                 this.loggerService.info(`Running script: ${scriptName}`);
-                await aw.exec(script["command"], env);
+                await aw.exec(script.command, env);
             }
             if (script["post-command"]) {
                 this.loggerService.info(
@@ -538,18 +538,22 @@ export class SpaceService {
         }
     }
 
-    private getProjectRoot(spaceFilePath: TFilePath): TDirectoryPath | undefined {
+    private getProjectRoot(
+        spaceFilePath: TFilePath,
+    ): TDirectoryPath | undefined {
         const absolutePath = this.pathService.toAbsolute(spaceFilePath);
         const parts = absolutePath.split(/[/\\]/);
 
         const dotSpaceIndex = parts.lastIndexOf(".space");
         if (dotSpaceIndex !== -1) {
-            return (parts.slice(0, dotSpaceIndex).join("/") || "/") as TDirectoryPath;
+            return (parts.slice(0, dotSpaceIndex).join("/") ||
+                "/") as TDirectoryPath;
         }
 
         const spacesIndex = parts.lastIndexOf("spaces");
         if (spacesIndex !== -1) {
-            return (parts.slice(0, spacesIndex).join("/") || "/") as TDirectoryPath;
+            return (parts.slice(0, spacesIndex).join("/") ||
+                "/") as TDirectoryPath;
         }
 
         return undefined;
@@ -640,7 +644,9 @@ export class SpaceService {
         const baseDir = this.pathService.getParent(path);
         const projectRoot = this.getProjectRoot(path);
 
-        const shouldBeRelative = async (targetPath: string): Promise<boolean> => {
+        const shouldBeRelative = async (
+            targetPath: string,
+        ): Promise<boolean> => {
             if (!this.pathService.isAbsolute(targetPath)) {
                 return true;
             }
@@ -652,8 +658,14 @@ export class SpaceService {
 
             // 2. Beneath project root?
             if (projectRoot) {
-                const relative = this.pathService.toRelative(projectRoot, targetPath);
-                if (!relative.startsWith("..") && !this.pathService.isAbsolute(relative)) {
+                const relative = this.pathService.toRelative(
+                    projectRoot,
+                    targetPath,
+                );
+                if (
+                    !relative.startsWith("..") &&
+                    !this.pathService.isAbsolute(relative)
+                ) {
                     return true;
                 }
             }
@@ -671,7 +683,10 @@ export class SpaceService {
                 const folder = f as any;
                 if (folder.path && this.pathService.isAbsolute(folder.path)) {
                     if (await shouldBeRelative(folder.path)) {
-                        folder.path = this.pathService.toRelative(baseDir, folder.path);
+                        folder.path = this.pathService.toRelative(
+                            baseDir,
+                            folder.path,
+                        );
                     }
                 }
                 folders.push(f);
@@ -688,7 +703,12 @@ export class SpaceService {
             for (const f of savedSpace.space.attachedFiles) {
                 if (this.pathService.isAbsolute(f)) {
                     if (await shouldBeRelative(f)) {
-                        attachedFiles.push(this.pathService.toRelative(baseDir, f) as TFilePath);
+                        attachedFiles.push(
+                            this.pathService.toRelative(
+                                baseDir,
+                                f,
+                            ) as TFilePath,
+                        );
                         continue;
                     }
                 }
