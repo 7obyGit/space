@@ -66,7 +66,7 @@ describe("SpaceService Close Script", () => {
     it("should run the close script when switching spaces", async () => {
         const activePath = "/active/path";
         const newPath = "/path/new";
-        
+
         const activeSpace = {
             space: {
                 name: "old",
@@ -85,12 +85,14 @@ describe("SpaceService Close Script", () => {
         };
 
         // Mock getActive to return activeSpace
-        vi.spyOn(spaceService, "getActive").mockResolvedValue(activeSpace as any);
+        vi.spyOn(spaceService, "getActive").mockResolvedValue(
+            activeSpace as any,
+        );
         // Mock get(name) to return newSpace
         vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
         // Mock getActivePath
         vi.spyOn(spaceService, "getActivePath").mockResolvedValue(activePath);
-        
+
         mockConfigService.get.mockResolvedValue({
             active: { path: activePath },
         });
@@ -100,13 +102,16 @@ describe("SpaceService Close Script", () => {
 
         expect(result.isSuccess()).toBe(true);
         // Verify close script was called
-        expect(aw.exec).toHaveBeenCalledWith("echo 'closing old space'", expect.anything());
+        expect(aw.exec).toHaveBeenCalledWith(
+            "echo 'closing old space'",
+            expect.anything(),
+        );
     });
 
     it("should NOT fail if no close script is defined", async () => {
         const activePath = "/active/path";
         const newPath = "/path/new";
-        
+
         const activeSpace = {
             space: {
                 name: "old",
@@ -122,10 +127,12 @@ describe("SpaceService Close Script", () => {
             },
         };
 
-        vi.spyOn(spaceService, "getActive").mockResolvedValue(activeSpace as any);
+        vi.spyOn(spaceService, "getActive").mockResolvedValue(
+            activeSpace as any,
+        );
         vi.spyOn(spaceService, "get").mockResolvedValue(newSpace as any);
         vi.spyOn(spaceService, "getActivePath").mockResolvedValue(activePath);
-        
+
         mockConfigService.get.mockResolvedValue({
             active: { path: activePath },
         });

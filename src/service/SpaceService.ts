@@ -381,10 +381,9 @@ export class SpaceService {
     }
 
     public async getEnv(space: ILoadedSpace): Promise<Record<string, string>> {
-        const resolvedEnv: Record<string, string> = { ...process.env } as Record<
-            string,
-            string
-        >;
+        const resolvedEnv: Record<string, string> = {
+            ...process.env,
+        } as Record<string, string>;
         const env = space.space.env || {};
 
         for (const [key, value] of Object.entries(env)) {
@@ -467,7 +466,7 @@ export class SpaceService {
 
     public async runHook(
         scriptName: string,
-        hookType: "pre-command" | "post-command",
+        hookType: "pre-command" | "command" | "post-command",
     ): Promise<void> {
         const active = await this.getActive();
         if (!active) {
@@ -475,11 +474,19 @@ export class SpaceService {
         }
 
         const script = active.space.scripts?.[scriptName];
-        if (!script || typeof script === "string") {
+        if (!script) {
             return;
         }
 
-        const hookCommand = script[hookType];
+        let hookCommand: string | undefined;
+        if (typeof script === "string") {
+            if (hookType === "command") {
+                hookCommand = script;
+            }
+        } else {
+            hookCommand = script[hookType];
+        }
+
         if (hookCommand) {
             const env = await this.getEnv(active);
             this.loggerService.info(`Running ${hookType} hook: ${scriptName}`);

@@ -22,39 +22,14 @@
 ## Features
 
 - `space env`
+- **Scripts & Hooks**: Support for custom scripts and hooks in workspace files. See [docs/scripts.md](docs/scripts.md) for details.
 
 ## Ideas
 
-- Custom hooks, e.g. defined in workspace file a bit like "scripts" section of `package.json` -> support for running script on load of workspace, on close, etc
 - Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
 - `space init --view=workspace` command (first time setup with options)
 - Relative space support, if path is below or is current workspace dir, use relative path instead (e.g. for repos)
-- scratch space - in `/tmp` and in new vscode window
 
 ## TODO
 
-- `space run ...` -> uses `aw` to run command by importing `aw` and running it e.g. `aw.run()` instead of through the command line
-- Scripts support (hooks are implemented as any other script, to be run when a command with the same name is invoked e.g. `space open` invokes script for `open` if it exists)
-
-```json
-{
-  "space": {
-    "scripts": {
-      "open": {
-        "post-command": "echo 'I run when you switch to this space'; space run install"
-      },
-      "close": {
-        "pre-command": "echo 'I run just before you switch to a different space'"
-      },
-      "install": {
-        "post-command": "echo 'I run when you run space install, after the install'"
-      },
-      "example": {
-        "command": "echo 'I run when you run space run example'"
-      }
-    }
-  }
-}
-```
-
-- `aw.run(script, env) or aw.exec(command, env)` support for space scripts and env vars - integration
+- Scratch space - in `/tmp` and in new vscode window

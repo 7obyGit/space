@@ -17,7 +17,7 @@ export interface ISpaceScripts {
 
 export interface ISpaceScript {
     "pre-command"?: string;
-    "command"?: string;
+    command?: string;
     "post-command"?: string;
 }
 
