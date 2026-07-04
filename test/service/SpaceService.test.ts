@@ -8,6 +8,7 @@ import { PathService } from "../../src/service/fs/PathService.js";
 import { JsonService } from "../../src/service/JsonService.js";
 import { LoggerService } from "../../src/service/LoggerService.js";
 import { SpaceService } from "../../src/service/SpaceService.js";
+import { GitService } from "../../src/service/GitService.js";
 import { Result } from "../../src/types/Result.js";
 
 describe("SpaceService", () => {
@@ -18,12 +19,17 @@ describe("SpaceService", () => {
     let mockJsonService: any;
     let mockLoggerService: any;
     let mockLinkService: any;
+    let mockGitService: any;
 
     beforeEach(() => {
         container.clearInstances();
 
         mockConfigService = { get: vi.fn() };
         mockLinkService = { create: vi.fn() };
+        mockGitService = {
+            isSameRepo: vi.fn().mockResolvedValue(false),
+            getGitRoot: vi.fn().mockResolvedValue(undefined),
+        };
         mockFileService = {
             exists: vi.fn(),
             createDirectory: vi.fn(),
@@ -34,10 +40,13 @@ describe("SpaceService", () => {
         mockPathService = {
             join: vi.fn((...args) => args.join("/")),
             getParents: vi.fn(() => []),
+            getParent: vi.fn((p) => p.split("/").slice(0, -1).join("/") || "/"),
             getCurrentWorkingDirectory: vi.fn(() => "/cwd"),
             getName: vi.fn((p) => p),
             getExtension: vi.fn(() => ".json"),
             toAbsolute: vi.fn((p) => p),
+            isAbsolute: vi.fn((p) => p.startsWith("/")),
+            toRelative: vi.fn((from, to) => to),
         };
         mockJsonService = { load: vi.fn(), save: vi.fn() };
         mockLoggerService = { warn: vi.fn(), info: vi.fn() };
@@ -48,6 +57,7 @@ describe("SpaceService", () => {
         container.registerInstance(JsonService, mockJsonService);
         container.registerInstance(LoggerService, mockLoggerService);
         container.registerInstance(LinkService, mockLinkService);
+        container.registerInstance(GitService, mockGitService);
 
         spaceService = container.resolve(SpaceService);
 
@@ -266,7 +276,11 @@ describe("SpaceService", () => {
         it("should add a file to attachedFiles and sync", async () => {
             const activePath = "/active/path";
             const space = {
-                space: { name: "myspace", attachedFiles: [] },
+                space: {
+                    name: "myspace",
+                    path: "/some/path.code-workspace",
+                    attachedFiles: [],
+                },
                 folders: [],
             };
 
@@ -294,7 +308,11 @@ describe("SpaceService", () => {
             const activePath = "/active/path";
             const target = "/target";
             const space = {
-                space: { name: "myspace", attachedFiles: [target] },
+                space: {
+                    name: "myspace",
+                    path: "/some/path.code-workspace",
+                    attachedFiles: [target],
+                },
                 folders: [{ path: target }],
             };
 

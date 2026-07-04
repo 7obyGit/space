@@ -11,6 +11,7 @@ import { PathService } from "./fs/PathService.js";
 import { JsonService } from "./JsonService.js";
 import { LoggerService } from "./LoggerService.js";
 import { TerminalService } from "./TerminalService.js";
+import { GitService } from "./GitService.js";
 
 @singleton()
 export class SpaceService {
@@ -22,6 +23,7 @@ export class SpaceService {
         @inject(JsonService) private jsonService: JsonService,
         @inject(LoggerService) private loggerService: LoggerService,
         @inject(TerminalService) private terminalService: TerminalService,
+        @inject(GitService) private gitService: GitService,
     ) {}
 
     public async getActivePath(): Promise<TFilePath> {
@@ -68,7 +70,7 @@ export class SpaceService {
         }
 
         const space: ISavedSpace = result.getValue()!;
-        const loadedSpace = this.toLoadedSpace(space, activePath);
+        const loadedSpace = await this.toLoadedSpace(space, activePath);
 
         await this.syncAttachedFiles(loadedSpace);
 
@@ -118,7 +120,7 @@ export class SpaceService {
             },
         };
 
-        const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+        const loadedSpace: ILoadedSpace = await this.toLoadedSpace(
             spaceContent,
             spacePath,
         );
@@ -174,7 +176,7 @@ export class SpaceService {
             },
         };
 
-        const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+        const loadedSpace: ILoadedSpace = await this.toLoadedSpace(
             spaceContent,
             spacePath,
         );
@@ -201,7 +203,7 @@ export class SpaceService {
                     await this.jsonService.load(absolutePath);
 
                 if (result.isSuccess()) {
-                    newSpace = this.toLoadedSpace(
+                    newSpace = await this.toLoadedSpace(
                         result.getValue()!,
                         absolutePath,
                     );
@@ -238,7 +240,7 @@ export class SpaceService {
                 );
             }
 
-            const savedActiveSpace = this.toSavedSpace(
+            const savedActiveSpace = await this.toSavedSpace(
                 activeSpace,
                 oldSpacePath as TFilePath,
             );
@@ -296,7 +298,7 @@ export class SpaceService {
                 const savedSpace: ISavedSpace = result.getValue()!;
 
                 // Convert to the loaded variant so the tool knows where it came from
-                const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+                const loadedSpace: ILoadedSpace = await this.toLoadedSpace(
                     savedSpace,
                     spacePath,
                 );
@@ -350,7 +352,7 @@ export class SpaceService {
         await this.syncAttachedFiles(space);
 
         // Save to original path
-        const savedSpace: ISavedSpace = this.toSavedSpace(
+        const savedSpace: ISavedSpace = await this.toSavedSpace(
             space,
             space.space.path,
         );
@@ -536,6 +538,23 @@ export class SpaceService {
         }
     }
 
+    private getProjectRoot(spaceFilePath: TFilePath): TDirectoryPath | undefined {
+        const absolutePath = this.pathService.toAbsolute(spaceFilePath);
+        const parts = absolutePath.split(/[/\\]/);
+
+        const dotSpaceIndex = parts.lastIndexOf(".space");
+        if (dotSpaceIndex !== -1) {
+            return (parts.slice(0, dotSpaceIndex).join("/") || "/") as TDirectoryPath;
+        }
+
+        const spacesIndex = parts.lastIndexOf("spaces");
+        if (spacesIndex !== -1) {
+            return (parts.slice(0, spacesIndex).join("/") || "/") as TDirectoryPath;
+        }
+
+        return undefined;
+    }
+
     private async syncAttachedFiles(space: ILoadedSpace): Promise<void> {
         const attachedFiles = space.space.attachedFiles || [];
 
@@ -605,7 +624,7 @@ export class SpaceService {
 
     private async save(space: ILoadedSpace): Promise<void> {
         // Set default space config
-        const savedSpace: ISavedSpace = this.toSavedSpace(
+        const savedSpace: ISavedSpace = await this.toSavedSpace(
             space,
             space.space.path,
         );
@@ -613,20 +632,69 @@ export class SpaceService {
         await this.jsonService.save(space.space.path, savedSpace);
     }
 
-    private toSavedSpace(
+    private async toSavedSpace(
         loadedSpace: ILoadedSpace | ISavedSpace,
         path: TFilePath,
-    ): ISavedSpace {
+    ): Promise<ISavedSpace> {
         const savedSpace: ISavedSpace = structuredClone(loadedSpace);
+        const baseDir = this.pathService.getParent(path);
+        const projectRoot = this.getProjectRoot(path);
+
+        const shouldBeRelative = async (targetPath: string): Promise<boolean> => {
+            if (!this.pathService.isAbsolute(targetPath)) {
+                return true;
+            }
+
+            // 1. Same git repo?
+            if (await this.gitService.isSameRepo(path, targetPath)) {
+                return true;
+            }
+
+            // 2. Beneath project root?
+            if (projectRoot) {
+                const relative = this.pathService.toRelative(projectRoot, targetPath);
+                if (!relative.startsWith("..") && !this.pathService.isAbsolute(relative)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
 
         if (savedSpace.folders) {
-            savedSpace.folders = savedSpace.folders.filter(
-                (f) => (f as any).name !== "Attached Files",
-            );
+            const folders = [];
+            for (const f of savedSpace.folders) {
+                if ((f as any).name === "Attached Files") {
+                    continue;
+                }
+
+                const folder = f as any;
+                if (folder.path && this.pathService.isAbsolute(folder.path)) {
+                    if (await shouldBeRelative(folder.path)) {
+                        folder.path = this.pathService.toRelative(baseDir, folder.path);
+                    }
+                }
+                folders.push(f);
+            }
+            savedSpace.folders = folders;
         }
 
         if (savedSpace.space === undefined) {
             savedSpace.space = {};
+        }
+
+        if (savedSpace.space.attachedFiles) {
+            const attachedFiles = [];
+            for (const f of savedSpace.space.attachedFiles) {
+                if (this.pathService.isAbsolute(f)) {
+                    if (await shouldBeRelative(f)) {
+                        attachedFiles.push(this.pathService.toRelative(baseDir, f) as TFilePath);
+                        continue;
+                    }
+                }
+                attachedFiles.push(f);
+            }
+            savedSpace.space.attachedFiles = attachedFiles;
         }
 
         if (savedSpace.space.name === undefined) {
@@ -655,11 +723,30 @@ export class SpaceService {
         return savedSpace;
     }
 
-    private toLoadedSpace(space: ISavedSpace, path: TFilePath): ILoadedSpace {
+    private async toLoadedSpace(
+        space: ISavedSpace,
+        path: TFilePath,
+    ): Promise<ILoadedSpace> {
         const spacePath = space.space?.path;
+        const baseDir = this.pathService.getParent(path);
 
         // This creates a copy of the input space and ensures default values are set
-        space = this.toSavedSpace(space, path);
+        space = await this.toSavedSpace(space, path);
+
+        if (space.folders) {
+            for (const folder of space.folders) {
+                const f = folder as any;
+                if (f.path) {
+                    f.path = this.pathService.toAbsolute(f.path, baseDir);
+                }
+            }
+        }
+
+        if (space.space?.attachedFiles) {
+            space.space.attachedFiles = space.space.attachedFiles.map((f) =>
+                this.pathService.toAbsolute(f, baseDir),
+            );
+        }
 
         // The path to the saved space is required when a space is active, as this
         // enables `space` to know where to save the active space to

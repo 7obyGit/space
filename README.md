@@ -24,11 +24,11 @@
 - `space env`
 - `space init`: Initialize a new space in the current directory.
 - **Scripts & Hooks**: Support for custom scripts and hooks in workspace files. See [docs/scripts.md](docs/scripts.md) for details.
+- **Relative Path Support**: Workspace files automatically use relative paths for folders and attached files when possible, making them portable across different machines and repository clones.
 
 ## Ideas
 
 - Command to auto-install all extension recommendations - perhaps support for auto enabling and disabling installed extensions based on wanted / unwanted ones
-- Relative space support, if path is below or is current workspace dir, use relative path instead (e.g. for repos)
 
 ## TODO
 
