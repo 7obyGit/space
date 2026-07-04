@@ -29,6 +29,8 @@ describe("SpaceService", () => {
         mockGitService = {
             isSameRepo: vi.fn().mockResolvedValue(false),
             getGitRoot: vi.fn().mockResolvedValue(undefined),
+            getRemoteUrl: vi.fn().mockResolvedValue(undefined),
+            clone: vi.fn().mockResolvedValue(undefined),
         };
         mockFileService = {
             exists: vi.fn(),
@@ -36,6 +38,7 @@ describe("SpaceService", () => {
             listFiles: vi.fn(),
             delete: vi.fn(),
             isFile: vi.fn(),
+            copy: vi.fn().mockResolvedValue(Result.success(undefined)),
         };
         mockPathService = {
             join: vi.fn((...args) => args.join("/")),
@@ -328,6 +331,50 @@ describe("SpaceService", () => {
                 space.folders.filter((f) => (f as any).path === target).length,
             ).toBe(0);
             expect(space.space.attachedFiles).not.toContain(target);
+        });
+    });
+
+    describe("clone", () => {
+        it("should create a scratch space from a git repo", async () => {
+            const gitRoot = "/git-root";
+            const remoteUrl = "https://github.com/user/repo.git";
+            mockPathService.getCurrentWorkingDirectory.mockReturnValue("/cwd");
+            mockGitService.getGitRoot.mockResolvedValue(gitRoot);
+            mockGitService.getRemoteUrl.mockResolvedValue(remoteUrl);
+            mockGitService.clone.mockResolvedValue(undefined);
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.clone();
+
+            expect(result).toContain("/tmp/space/");
+            expect(result).toContain("scratch.code-workspace");
+            expect(mockGitService.clone).toHaveBeenCalledWith(
+                remoteUrl,
+                expect.stringContaining("/repo"),
+            );
+            expect(mockJsonService.save).toHaveBeenCalled();
+            const savedContent = mockJsonService.save.mock.calls[0][1];
+            expect(savedContent.space.source.type).toBe("git");
+            expect(savedContent.space.source.url).toBe(remoteUrl);
+            expect(savedContent.space.scripts).toBeDefined();
+            expect(savedContent.space.scripts.status).toBe("git status");
+        });
+
+        it("should create a scratch space from a directory if not a git repo", async () => {
+            mockPathService.getCurrentWorkingDirectory.mockReturnValue("/cwd");
+            mockGitService.getGitRoot.mockResolvedValue(undefined);
+            mockFileService.copy.mockResolvedValue(Result.success(undefined));
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const result = await spaceService.clone();
+
+            expect(result).toContain("/tmp/space/");
+            expect(mockFileService.copy).toHaveBeenCalledWith(
+                "/cwd",
+                expect.stringContaining("/repo"),
+            );
+            const savedContent = mockJsonService.save.mock.calls[0][1];
+            expect(savedContent.space.source.type).toBe("directory");
         });
     });
 });

@@ -37,11 +37,13 @@ Dynamic variables are particularly useful for handling secrets and sensitive inf
 Instead of hardcoding an API key or password in your workspace configuration, you can use a command to retrieve it from a secure store at runtime.
 
 Example using `pass`:
+
 ```json
 "DATABASE_PASSWORD": { "command": "pass show db/production/password" }
 ```
 
 Example using AWS CLI:
+
 ```json
 "AWS_TOKEN": { "command": "aws secretsmanager get-secret-value --secret-id my-token --query SecretString --output text" }
 ```

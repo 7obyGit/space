@@ -1,9 +1,14 @@
 import { aw } from "@7obygit/aw";
+import { randomUUID } from "node:crypto";
 import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import type { TDirectoryPath, TFilePath } from "../types/PathTypes.js";
 import { Result, type TResult } from "../types/Result.js";
-import type { ILoadedSpace, ISavedSpace } from "../types/Space.js";
+import type {
+    ILoadedSpace,
+    ISavedSpace,
+    ISpaceScripts,
+} from "../types/Space.js";
 import { ConfigService } from "./ConfigService.js";
 import { FileService } from "./fs/FileService.js";
 import { LinkService } from "./fs/LinkService.js";
@@ -27,8 +32,37 @@ export class SpaceService {
     ) {}
 
     public async getActivePath(): Promise<TFilePath> {
+        const localScratch = await this.findLocalScratchPath();
+        if (localScratch) {
+            return localScratch;
+        }
+
         const config: IConfig = await this.configService.get();
         return config.active.path;
+    }
+
+    private async findLocalScratchPath(): Promise<TFilePath | undefined> {
+        const cwd = this.pathService.getCurrentWorkingDirectory();
+        const parents = this.pathService.getParents(cwd, {
+            includeCurrentWorkingDirectory: true,
+        });
+
+        for (const parent of parents) {
+            const scratchPath = this.pathService.join(
+                parent,
+                "scratch.code-workspace",
+            ) as TFilePath;
+            if (await this.fileService.exists(scratchPath)) {
+                const result = await this.jsonService.load(scratchPath);
+                if (result.isSuccess()) {
+                    const space = result.getValue() as ISavedSpace;
+                    if (space.space?.name?.startsWith("scratch-")) {
+                        return scratchPath;
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
     public async getSpacesPaths(): Promise<TDirectoryPath[]> {
@@ -187,6 +221,91 @@ export class SpaceService {
         await this.jsonService.save(spacePath, spaceContent);
 
         return loadedSpace;
+    }
+
+    public async clone(): Promise<TFilePath> {
+        const cwd = this.pathService.getCurrentWorkingDirectory();
+        const uuid = randomUUID();
+        const tmpDir = `/tmp/space/${uuid}` as TDirectoryPath;
+        const repoPath = this.pathService.join(
+            tmpDir,
+            "repo",
+        ) as TDirectoryPath;
+        const attachedFilesPath = this.pathService.join(
+            tmpDir,
+            "attached-files",
+        ) as TDirectoryPath;
+
+        await this.fileService.createDirectory(tmpDir);
+        await this.fileService.createDirectory(attachedFilesPath);
+
+        const gitRoot = await this.gitService.getGitRoot(cwd);
+        let sourceInfo: any = {
+            type: "directory",
+            path: cwd,
+        };
+
+        if (gitRoot) {
+            const remoteUrl = await this.gitService.getRemoteUrl(gitRoot);
+            if (remoteUrl) {
+                await this.gitService.clone(remoteUrl, repoPath);
+                sourceInfo = {
+                    type: "git",
+                    url: remoteUrl,
+                    path: gitRoot,
+                };
+            } else {
+                await this.fileService.copy(gitRoot, repoPath);
+            }
+        } else {
+            await this.fileService.copy(cwd, repoPath);
+        }
+
+        const workspaceFilePath = this.pathService.join(
+            tmpDir,
+            "scratch.code-workspace",
+        ) as TFilePath;
+
+        const workspaceLinkPath = this.pathService.join(
+            attachedFilesPath,
+            "scratch.code-workspace",
+        );
+        await this.linkService.create({
+            from: workspaceLinkPath,
+            to: workspaceFilePath,
+        });
+
+        const workspaceContent: ISavedSpace = {
+            folders: [
+                { path: repoPath },
+                { path: attachedFilesPath, name: "Attached Files" },
+            ],
+            settings: {
+                "window.title": `\${dirty}\${activeEditorShort} - Scratch (${uuid})`,
+            },
+            space: {
+                name: `scratch-${uuid}`,
+                source: sourceInfo,
+                attachedFiles: [workspaceFilePath],
+                lastUpdated: new Date().toISOString(),
+                scripts: this.getScratchScripts(),
+            },
+        };
+
+        await this.jsonService.save(workspaceFilePath, workspaceContent);
+
+        return workspaceFilePath;
+    }
+
+    private getScratchScripts(): ISpaceScripts {
+        return {
+            status: "git status",
+            diff: "git diff",
+            log: "git log --oneline -n 10",
+            install: "npm install",
+            test: "npm test",
+            build: "npm run build",
+        };
     }
 
     public async use(
