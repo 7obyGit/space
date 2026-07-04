@@ -30,7 +30,6 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: "lts/*"
-                  cache: "npm"
                   registry-url: "https://registry.npmjs.org"
 
             - run: npm ci
@@ -42,4 +41,6 @@ jobs:
             - name: Release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: "none"
+                  NPM_CONFIG_REGISTRY: "https://registry.npmjs.org/"
               run: npx semantic-release
