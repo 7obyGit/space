@@ -126,6 +126,32 @@ describe("SpaceService", () => {
         });
     });
 
+    describe("init", () => {
+        it("should initialize a new space in the current directory", async () => {
+            const cwd = "/current/dir";
+            mockPathService.getCurrentWorkingDirectory.mockReturnValue(cwd);
+            mockPathService.getName.mockReturnValue("dir");
+            mockConfigService.get.mockResolvedValue({
+                active: { path: "active" },
+            });
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+
+            const space = await spaceService.init();
+
+            expect(space.space.name).toBe("dir");
+            expect(space.folders).toContainEqual({ path: cwd });
+            expect(mockFileService.createDirectory).toHaveBeenCalledWith(
+                expect.stringContaining(".space/spaces"),
+            );
+            expect(mockJsonService.save).toHaveBeenCalledWith(
+                expect.stringContaining("dir.code-workspace"),
+                expect.objectContaining({
+                    folders: [{ path: cwd }],
+                }),
+            );
+        });
+    });
+
     describe("use", () => {
         it("should switch to a new space", async () => {
             const activePath = "/active/path";

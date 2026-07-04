@@ -145,6 +145,48 @@ export class SpaceService {
         return generatedSpace;
     }
 
+    public async init(): Promise<ILoadedSpace> {
+        const cwd = this.pathService.getCurrentWorkingDirectory();
+        const name = this.pathService.getName(cwd);
+        const config: IConfig = await this.configService.get();
+
+        // Ensure .space/spaces directory exists in current directory
+        const spacesPath = this.pathService.join(cwd, ".space/spaces");
+        await this.fileService.createDirectory(spacesPath);
+
+        // The path to the code-workspace file about to be created
+        const spacePath: TFilePath = this.pathService.join(
+            spacesPath,
+            `${name}.code-workspace`,
+        );
+
+        // Generate the new space file
+        const spaceContent: ISavedSpace = {
+            folders: [{ path: cwd }],
+            settings: {
+                "window.title": `\${dirty}\${activeEditorShort} - ${name} (Space)`,
+            },
+            space: {
+                attachedFiles: [
+                    this.pathService.toAbsolute(config.active.path),
+                ],
+                lastUpdated: new Date().toISOString(),
+            },
+        };
+
+        const loadedSpace: ILoadedSpace = this.toLoadedSpace(
+            spaceContent,
+            spacePath,
+        );
+
+        // Ensure all default space values are set
+        await this.save(loadedSpace);
+
+        await this.jsonService.save(spacePath, spaceContent);
+
+        return loadedSpace;
+    }
+
     public async use(
         nameOrPath: string,
     ): Promise<TResult<ILoadedSpace, string>> {

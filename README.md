@@ -22,6 +22,7 @@
 ## Features
 
 - `space env`
+- `space init`: Initialize a new space in the current directory.
 - **Scripts & Hooks**: Support for custom scripts and hooks in workspace files. See [docs/scripts.md](docs/scripts.md) for details.
 
 ## Ideas

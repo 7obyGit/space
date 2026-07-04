@@ -6,6 +6,7 @@ import { CreateCommand } from "../command/CreateCommand.js";
 import { DeleteCommand } from "../command/DeleteCommand.js";
 import { EnvCommand } from "../command/EnvCommand.js";
 import { InfoCommand } from "../command/InfoCommand.js";
+import { InitCommand } from "../command/InitCommand.js";
 import { ListCommand } from "../command/ListCommand.js";
 import { OpenCommand } from "../command/OpenCommand.js";
 import { PopCommand } from "../command/PopCommand.js";
@@ -30,6 +31,7 @@ export class CliController {
         cli.register(PopCommand);
         cli.register(UseCommand);
         cli.register(OpenCommand);
+        cli.register(InitCommand);
         cli.register(CreateCommand);
         cli.register(DeleteCommand);
         cli.register(EnvCommand);
