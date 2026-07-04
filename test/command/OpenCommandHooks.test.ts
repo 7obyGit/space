@@ -33,7 +33,7 @@ describe("OpenCommand Hooks Integration", () => {
 
         mockLoggerService = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
         mockTerminalService = { run: vi.fn() };
-        mockPathService = { 
+        mockPathService = {
             toAbsolute: vi.fn((p) => p),
             join: vi.fn((...args) => args.join("/")),
             getCurrentWorkingDirectory: vi.fn(() => "/cwd"),
@@ -69,12 +69,19 @@ describe("OpenCommand Hooks Integration", () => {
             },
         };
 
-        vi.spyOn(spaceService, "getActive").mockResolvedValue(activeSpace as any);
-        vi.spyOn(spaceService, "getActivePath").mockResolvedValue("/some/path.code-workspace");
+        vi.spyOn(spaceService, "getActive").mockResolvedValue(
+            activeSpace as any,
+        );
+        vi.spyOn(spaceService, "getActivePath").mockResolvedValue(
+            "/some/path.code-workspace",
+        );
 
         await openCommand.execute();
 
-        expect(aw.exec).toHaveBeenCalledWith("echo 'string script'", expect.anything());
+        expect(aw.exec).toHaveBeenCalledWith(
+            "echo 'string script'",
+            expect.anything(),
+        );
     });
 
     it("should run hook if it is an object with pre-command and command", async () => {
@@ -84,14 +91,18 @@ describe("OpenCommand Hooks Integration", () => {
                 scripts: {
                     open: {
                         "pre-command": "echo 'pre'",
-                        "command": "echo 'cmd'",
+                        command: "echo 'cmd'",
                     },
                 },
             },
         };
 
-        vi.spyOn(spaceService, "getActive").mockResolvedValue(activeSpace as any);
-        vi.spyOn(spaceService, "getActivePath").mockResolvedValue("/some/path.code-workspace");
+        vi.spyOn(spaceService, "getActive").mockResolvedValue(
+            activeSpace as any,
+        );
+        vi.spyOn(spaceService, "getActivePath").mockResolvedValue(
+            "/some/path.code-workspace",
+        );
 
         await openCommand.execute();
 

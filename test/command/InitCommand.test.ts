@@ -40,7 +40,9 @@ describe("InitCommand", () => {
 
         expect(mockSpaceService.init).toHaveBeenCalled();
         expect(mockLoggerService.info).toHaveBeenCalledWith(
-            expect.stringContaining("Successfully initialized space: test-space"),
+            expect.stringContaining(
+                "Successfully initialized space: test-space",
+            ),
         );
         expect(mockLoggerService.info).toHaveBeenCalledWith(
             expect.stringContaining("space use test-space"),

@@ -1,8 +1,8 @@
 {
     "folders": [
         {
-            "path": "/home/toby/Documents/repos/public/space"
-        }
+            "path": "/home/toby/Documents/repos/public/space",
+        },
     ],
     "extensions": {},
     "settings": {},
@@ -10,28 +10,26 @@
     "space": {
         "name": "Example",
         "lastUpdated": "2026-06-28T18:53:54.764Z",
-        "attachedFiles": [
-            "/abc/def.txt"
-        ],
+        "attachedFiles": ["/abc/def.txt"],
         "env": {
             "EXAMPLE_KEY": "EXAMPLE_VALUE",
             "EXAMPLE_GENERATED": {
-                "command": "echo 'Hello world!'"
-            }
+                "command": "echo 'Hello world!'",
+            },
         },
         "scripts": {
             "open": {
-                "post-command": "echo 'I run when you switch to this space'; space run install"
+                "post-command": "echo 'I run when you switch to this space'; space run install",
             },
             "close": {
-                "pre-command": "echo 'I run just before you switch to a different space'"
+                "pre-command": "echo 'I run just before you switch to a different space'",
             },
             "install": {
-                "post-command": "echo 'I run when you run space install, after the install'"
+                "post-command": "echo 'I run when you run space install, after the install'",
             },
             "example": {
-                "command": "echo 'I run when you run space run example'"
-            }
-        }
-    }
+                "command": "echo 'I run when you run space run example'",
+            },
+        },
+    },
 }

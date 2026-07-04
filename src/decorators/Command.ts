@@ -14,7 +14,9 @@ export function Command(path: string | symbol | any[], description?: string) {
                 commandName = paths[0].find((p) => typeof p === "string");
             } else {
                 paths = [path as any[]];
-                commandName = (path as any[]).find((p) => typeof p === "string");
+                commandName = (path as any[]).find(
+                    (p) => typeof p === "string",
+                );
             }
         } else {
             paths = [[path]];
