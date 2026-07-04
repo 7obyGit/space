@@ -38,20 +38,22 @@
 
 ```json
 {
+  "space": {
     "scripts": {
-        "open": {
-            "post-command": "echo 'I run when you switch to this space'; space run install"
-        },
-        "close": {
-            "pre-command": "echo 'I run just before you switch to a different space'"
-        },
-        "install": {
-            "post-command": "echo 'I run when you run space install, after the install'"
-        },
-        "example": {
-            "command": "echo 'I run when you run space run example'"
-        }
+      "open": {
+        "post-command": "echo 'I run when you switch to this space'; space run install"
+      },
+      "close": {
+        "pre-command": "echo 'I run just before you switch to a different space'"
+      },
+      "install": {
+        "post-command": "echo 'I run when you run space install, after the install'"
+      },
+      "example": {
+        "command": "echo 'I run when you run space run example'"
+      }
     }
+  }
 }
 ```
 
