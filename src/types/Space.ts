@@ -60,8 +60,8 @@ export interface IVSCodeWorkspace {
      */
     launch?: {
         version: string;
-        configurations: Array<Record<string, any>>;
-        compounds?: Array<Record<string, any>>;
+        configurations: Record<string, any>[];
+        compounds?: Record<string, any>[];
     };
 
     /**
@@ -69,8 +69,8 @@ export interface IVSCodeWorkspace {
      */
     tasks?: {
         version: string;
-        tasks: Array<Record<string, any>>;
-        inputs?: Array<Record<string, any>>;
+        tasks: Record<string, any>[];
+        inputs?: Record<string, any>[];
     };
 
     /**

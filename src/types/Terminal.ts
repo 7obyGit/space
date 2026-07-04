@@ -1,5 +1,5 @@
 export interface ITerminalResult {
     stdout: string;
     stderr: string;
-    exitCode: number | null;
+    exitCode: number | string | null;
 }

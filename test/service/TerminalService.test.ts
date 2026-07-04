@@ -73,4 +73,21 @@ describe("TerminalService", () => {
             "Failed to execute command: Spawn failed",
         );
     });
+
+    it("should return exit code if command fails with a string code", async () => {
+        const mockStdout = "";
+        const mockStderr = "some error\n";
+        const mockError = { code: "ERR_SOME_ERROR" };
+        (child_process.exec as any).mockImplementation(
+            (command: string, callback: any) => {
+                callback(mockError, mockStdout, mockStderr);
+            },
+        );
+
+        const result = await terminalService.run("any-command");
+
+        expect(result.isSuccess()).toBe(true);
+        const value = result.getValue();
+        expect(value.exitCode).toBe("ERR_SOME_ERROR");
+    });
 });
