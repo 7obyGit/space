@@ -7,7 +7,18 @@ export interface ISavedSpace extends IVSCodeWorkspace {
         lastUpdated?: string;
         attachedFiles?: TFilePath[];
         env?: ISpaceEnv;
+        scripts?: ISpaceScripts;
     };
+}
+
+export interface ISpaceScripts {
+    [key: string]: string | ISpaceScript;
+}
+
+export interface ISpaceScript {
+    "pre-command"?: string;
+    "command"?: string;
+    "post-command"?: string;
 }
 
 export interface ILoadedSpace extends IVSCodeWorkspace {
@@ -17,6 +28,7 @@ export interface ILoadedSpace extends IVSCodeWorkspace {
         lastUpdated: string;
         attachedFiles: TFilePath[];
         env: ISpaceEnv;
+        scripts: ISpaceScripts;
     };
 }
 

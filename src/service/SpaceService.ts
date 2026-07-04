@@ -1,3 +1,4 @@
+import { aw } from "@7obygit/aw";
 import { inject, singleton } from "tsyringe";
 import type { IConfig } from "../types/Config.js";
 import type { TDirectoryPath, TFilePath } from "../types/PathTypes.js";
@@ -374,7 +375,10 @@ export class SpaceService {
     }
 
     public async getEnv(space: ILoadedSpace): Promise<Record<string, string>> {
-        const resolvedEnv: Record<string, string> = {};
+        const resolvedEnv: Record<string, string> = { ...process.env } as Record<
+            string,
+            string
+        >;
         const env = space.space.env || {};
 
         for (const [key, value] of Object.entries(env)) {
@@ -406,6 +410,68 @@ export class SpaceService {
         }
 
         return resolvedEnv;
+    }
+
+    public async runScript(scriptName: string): Promise<void> {
+        const active = await this.getActive();
+        if (!active) {
+            this.loggerService.error("No active space found");
+            return;
+        }
+
+        const script = active.space.scripts?.[scriptName];
+        if (!script) {
+            this.loggerService.warn(
+                `No script named '${scriptName}' found in active space`,
+            );
+            return;
+        }
+
+        const env = await this.getEnv(active);
+
+        if (typeof script === "string") {
+            this.loggerService.info(`Running script: ${scriptName}`);
+            await aw.exec(script, env);
+        } else {
+            if (script["pre-command"]) {
+                this.loggerService.info(
+                    `Running pre-command for script: ${scriptName}`,
+                );
+                await aw.exec(script["pre-command"], env);
+            }
+            if (script["command"]) {
+                this.loggerService.info(`Running script: ${scriptName}`);
+                await aw.exec(script["command"], env);
+            }
+            if (script["post-command"]) {
+                this.loggerService.info(
+                    `Running post-command for script: ${scriptName}`,
+                );
+                await aw.exec(script["post-command"], env);
+            }
+        }
+    }
+
+    public async runHook(
+        scriptName: string,
+        hookType: "pre-command" | "post-command",
+    ): Promise<void> {
+        const active = await this.getActive();
+        if (!active) {
+            return;
+        }
+
+        const script = active.space.scripts?.[scriptName];
+        if (!script || typeof script === "string") {
+            return;
+        }
+
+        const hookCommand = script[hookType];
+        if (hookCommand) {
+            const env = await this.getEnv(active);
+            this.loggerService.info(`Running ${hookType} hook: ${scriptName}`);
+            await aw.exec(hookCommand, env);
+        }
     }
 
     private async syncAttachedFiles(space: ILoadedSpace): Promise<void> {
@@ -514,6 +580,10 @@ export class SpaceService {
 
         if (savedSpace.space.env === undefined) {
             savedSpace.space.env = {};
+        }
+
+        if (savedSpace.space.scripts === undefined) {
+            savedSpace.space.scripts = {};
         }
 
         if (savedSpace.space.lastUpdated === undefined) {
