@@ -176,6 +176,12 @@ export class SpaceService {
         // Find active space
         const activeSpace: ILoadedSpace | undefined = await this.getActive();
         if (activeSpace !== undefined) {
+            // Run close script if it exists
+            await this.runScript("close", {
+                silent: true,
+                space: activeSpace,
+            });
+
             if (activeSpace.space?.name === undefined) {
                 return Result.error(
                     "No name present under '.space.name' in active workspace file",
@@ -412,18 +418,25 @@ export class SpaceService {
         return resolvedEnv;
     }
 
-    public async runScript(scriptName: string): Promise<void> {
-        const active = await this.getActive();
+    public async runScript(
+        scriptName: string,
+        options: { silent?: boolean; space?: ILoadedSpace } = {},
+    ): Promise<void> {
+        const active = options.space ?? (await this.getActive());
         if (!active) {
-            this.loggerService.error("No active space found");
+            if (!options.silent) {
+                this.loggerService.error("No active space found");
+            }
             return;
         }
 
         const script = active.space.scripts?.[scriptName];
         if (!script) {
-            this.loggerService.warn(
-                `No script named '${scriptName}' found in active space`,
-            );
+            if (!options.silent) {
+                this.loggerService.warn(
+                    `No script named '${scriptName}' found in active space`,
+                );
+            }
             return;
         }
 
