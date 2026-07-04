@@ -73,13 +73,13 @@ describe("PathService", () => {
     });
 
     describe("getParents", () => {
-        it("should return all parent directories", () => {
+        it("should return all parent directories from child to root", () => {
             const path = "/a/b/c";
             const parents = pathService.getParents(path);
-            // On linux, it should be ['/', '/a', '/a/b']
-            expect(parents).toContain(resolve("/"));
-            expect(parents).toContain(resolve("/a"));
-            expect(parents).toContain(resolve("/a/b"));
+            // On linux, it should be ['/a/b', '/a', '/']
+            expect(parents[0]).toBe(resolve("/a/b"));
+            expect(parents[1]).toBe(resolve("/a"));
+            expect(parents[2]).toBe(resolve("/"));
         });
 
         it("should return empty array for root directory", () => {
@@ -88,12 +88,12 @@ describe("PathService", () => {
             expect(parents).toEqual([]);
         });
 
-        it("should include CWD if requested", () => {
+        it("should include initial path if requested", () => {
             const path = "/tmp";
             const parents = pathService.getParents(path, {
                 includeCurrentWorkingDirectory: true,
             });
-            expect(parents).toContain(process.cwd());
+            expect(parents).toContain(resolve(path));
         });
     });
 

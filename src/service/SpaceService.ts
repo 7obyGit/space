@@ -131,7 +131,7 @@ export class SpaceService {
         // Get the "most local" spaces directory to add to
         const spacesPath: TDirectoryPath | undefined = (
             await this.getSpacesPaths()
-        ).at(1);
+        ).at(0);
         if (spacesPath === undefined) {
             throw new Error(
                 "Failed to find any candidate spaces directories - this should never happen\nDoes ~/.space/spaces exist?",

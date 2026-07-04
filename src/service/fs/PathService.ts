@@ -54,17 +54,17 @@ export class PathService {
         },
     ): TDirectoryPath[] {
         const parents: TDirectoryPath[] = [];
-        let current: TPath = resolve(this.expandHome(path));
+        let current: TDirectoryPath = resolve(
+            this.expandHome(path),
+        ) as TDirectoryPath;
 
-        while (!this.isFileSystemRoot(current)) {
-            current = dirname(current);
+        if (options.includeCurrentWorkingDirectory === true) {
             parents.push(current);
         }
 
-        parents.reverse();
-
-        if (options.includeCurrentWorkingDirectory === true) {
-            parents.push(this.getCurrentWorkingDirectory());
+        while (!this.isFileSystemRoot(current)) {
+            current = dirname(current) as TDirectoryPath;
+            parents.push(current);
         }
 
         return parents;

@@ -1,4 +1,6 @@
+import { dirname } from "path";
 import { inject, singleton } from "tsyringe";
+import { fileURLToPath } from "url";
 import type { TVersion } from "../types/Config.js";
 import type { TFilePath } from "../types/PathTypes.js";
 import type { TResult } from "../types/Result.js";
@@ -13,9 +15,13 @@ export class AppService {
     ) {}
 
     public async getVersion(): Promise<TVersion> {
-        // Resolves package.json straight from your project root at runtime
+        // Resolves package.json relative to this file's location
+        const currentFilePath = fileURLToPath(import .meta.url);
+        const currentDirPath = dirname(currentFilePath);
         const path: TFilePath = this.pathService.join(
-            this.pathService.getCurrentWorkingDirectory(),
+            currentDirPath,
+            "..",
+            "..",
             "package.json",
         );
 

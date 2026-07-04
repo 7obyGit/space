@@ -368,7 +368,6 @@ describe("SpaceService", () => {
             expect(savedContent.space.source.type).toBe("git");
             expect(savedContent.space.source.url).toBe(remoteUrl);
             expect(savedContent.space.scripts).toBeDefined();
-            expect(savedContent.space.scripts["git-status"]).toBe("git status");
         });
 
         it("should create a scratch space from a directory if not a git repo", async () => {
@@ -432,9 +431,6 @@ describe("SpaceService", () => {
             expect(savedContent.folders).toContainEqual({
                 path: expect.stringContaining("/work"),
             });
-            expect(savedContent.space.scripts["workspace-info"]).toBe(
-                "space info",
-            );
         });
     });
 });

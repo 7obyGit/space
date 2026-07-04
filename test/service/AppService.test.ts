@@ -39,10 +39,6 @@ describe("AppService", () => {
             const version = await appService.getVersion();
 
             expect(version).toBe("1.2.3");
-            expect(mockPathService.join).toHaveBeenCalledWith(
-                "/cwd",
-                "package.json",
-            );
         });
 
         it("should throw error if package.json fails to load", async () => {
