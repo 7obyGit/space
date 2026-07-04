@@ -85,20 +85,5 @@ Note that scripts matching built-in command names are automatically invoked as h
 
 #### Environment Variables
 
-Scripts are executed using the `aw` CLI tool. All environment variables defined in the `space.env` section of your workspace file are automatically passed to the script execution environment.
-
-Dynamic environment variables (defined via commands) are also resolved before the script runs.
-
-```json
-{
-    "space": {
-        "env": {
-            "PROJECT_ID": "my-cool-project",
-            "API_KEY": { "command": "pass show api/key" }
-        },
-        "scripts": {
-            "deploy": "deploy-script.sh --key $API_KEY"
-        }
-    }
-}
-```
+Scripts are executed with the environment variables defined in your workspace configuration.
+For more details on how to configure and use environment variables, see the [Environment Variables](./env.md) documentation.

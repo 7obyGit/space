@@ -25,7 +25,7 @@ See [docs/installation.md](docs/installation.md) for more details.
 
 ## Features
 
-- `space env`
+- `space env`: View resolved environment variables for the active space. See [docs/env.md](docs/env.md) for details.
 - `space init`: Initialize a new space in the current directory.
 - **Scripts & Hooks**: Support for custom scripts and hooks in workspace files. See [docs/scripts.md](docs/scripts.md) for details.
 - **Relative Path Support**: Workspace files automatically use relative paths for folders and attached files when possible, making them portable across different machines and repository clones.
