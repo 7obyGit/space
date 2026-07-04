@@ -1,8 +1,8 @@
 {
     "name": "@7obygit/space",
     "version": "0.0.1",
-    "description": "",
-    "main": "index.js",
+    "description": "A powerful CLI tool for managing dynamic VS Code workspaces. Switch contexts, manage environment variables, and attach files on the fly.",
+    "main": "dist/index.js",
     "bin": {
         "space": "./dist/index.js"
     },
@@ -19,10 +19,21 @@
         "type": "git",
         "url": "git+https://github.com/7obyGit/space.git"
     },
-    "keywords": [],
-    "author": "",
+    "keywords": [
+        "vscode",
+        "workspace",
+        "cli",
+        "productivity",
+        "context-switching",
+        "environment-variables",
+        "scratch-space"
+    ],
+    "author": "7obyGit",
     "license": "MIT",
     "type": "module",
+    "files": [
+        "dist"
+    ],
     "bugs": {
         "url": "https://github.com/7obyGit/space/issues"
     },
@@ -75,5 +86,8 @@
     "publishConfig": {
         "access": "public",
         "provenance": true
+    },
+    "engines": {
+        "node": ">=20.0.0"
     }
 }
