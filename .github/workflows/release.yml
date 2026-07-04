@@ -42,10 +42,5 @@ jobs:
             - name: Release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: npx semantic-release
-
-            - name: Publish to npm
-              run: npm publish --provenance
-              env:
-                  # Setup-node uses this token variable dynamically for OIDC validation
                   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: npx semantic-release
