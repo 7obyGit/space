@@ -40,7 +40,7 @@
     },
     "homepage": "https://github.com/7obyGit/space#readme",
     "devDependencies": {
-        "@semantic-release/exec": "^6.0.3",
+        "@semantic-release/exec": "^7.1.0",
         "@semantic-release/github": "^11.0.1",
         "@semantic-release/npm": "^12.0.1",
         "@types/marked-terminal": "^6.1.1",
