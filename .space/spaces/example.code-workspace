@@ -1,0 +1,35 @@
+{
+    "folders": [
+        {
+            "path": "../..",
+        },
+    ],
+    "extensions": {},
+    "settings": {},
+    "launch": {},
+    "space": {
+        "name": "Example",
+        "lastUpdated": "2026-07-04T12:05:27.479Z",
+        "attachedFiles": ["/abc/def.txt"],
+        "env": {
+            "EXAMPLE_KEY": "EXAMPLE_VALUE",
+            "EXAMPLE_GENERATED": {
+                "command": "echo 'Hello world!'",
+            },
+        },
+        "scripts": {
+            "open": {
+                "post-command": "echo 'I run when you switch to this space'; space run install",
+            },
+            "close": {
+                "pre-command": "echo 'I run just before you switch to a different space'",
+            },
+            "install": {
+                "post-command": "echo 'I run when you run space install, after the install'",
+            },
+            "example": {
+                "command": "echo 'I run when you run space run example'",
+            },
+        },
+    },
+}

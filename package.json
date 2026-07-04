@@ -1,0 +1,94 @@
+{
+    "name": "@7obygit/space",
+    "version": "0.0.1",
+    "description": "A powerful CLI tool for managing dynamic VS Code workspaces. Switch contexts, manage environment variables, and attach files on the fly.",
+    "main": "dist/index.js",
+    "bin": {
+        "space": "dist/index.js"
+    },
+    "scripts": {
+        "prepare": "husky",
+        "build": "tsc",
+        "dev": "tsx src/index.ts",
+        "lint": "tslint -p tsconfig.json",
+        "lint:fix": "tslint -p tsconfig.json --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "test": "vitest run"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/7obyGit/space.git"
+    },
+    "keywords": [
+        "vscode",
+        "workspace",
+        "cli",
+        "productivity",
+        "context-switching",
+        "environment-variables",
+        "scratch-space"
+    ],
+    "author": "7obyGit",
+    "license": "MIT",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "bugs": {
+        "url": "https://github.com/7obyGit/space/issues"
+    },
+    "homepage": "https://github.com/7obyGit/space#readme",
+    "devDependencies": {
+        "@semantic-release/exec": "^6.0.3",
+        "@semantic-release/github": "^11.0.1",
+        "@semantic-release/npm": "^12.0.1",
+        "@types/marked-terminal": "^6.1.1",
+        "@types/node": "^25.9.2",
+        "prettier": "^3.9.1",
+        "semantic-release": "^24.2.3",
+        "tslint": "^5.20.1",
+        "tsx": "^4.22.4",
+        "typescript": "^6.0.3",
+        "vitest": "^4.1.9"
+    },
+    "dependencies": {
+        "@7obygit/aw": "^0.5.0",
+        "chalk": "^5.6.2",
+        "clipanion": "^4.0.0-rc.4",
+        "husky": "^9.1.7",
+        "json5": "^2.2.3",
+        "marked": "^15.0.12",
+        "marked-terminal": "^7.3.0",
+        "reflect-metadata": "^0.2.2",
+        "tsyringe": "^4.10.0"
+    },
+    "release": {
+        "branches": [
+            "main"
+        ],
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            [
+                "@semantic-release/npm",
+                {
+                    "npmPublish": false
+                }
+            ],
+            [
+                "@semantic-release/github",
+                {
+                    "makeLatest": true
+                }
+            ]
+        ]
+    },
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    }
+}

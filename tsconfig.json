@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "types": ["node"],
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "outDir": "dist",
+        "rootDir": "src"
+    },
+    "include": ["src/**/*"]
+}
