@@ -32,7 +32,13 @@ If you're developing `space` locally and want changes to be reflected immediatel
     npm install
     ```
 
-3. Link the package globally:
+3. Build the package:
+
+    ```bash
+    npm run build
+    ```
+
+4. Link the package globally:
     ```bash
     npm link
     ```

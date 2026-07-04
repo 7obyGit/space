@@ -425,9 +425,7 @@ export class SpaceService {
     }
 
     public async getEnv(space: ILoadedSpace): Promise<Record<string, string>> {
-        const resolvedEnv: Record<string, string> = {
-            ...process.env,
-        } as Record<string, string>;
+        const resolvedEnv: Record<string, string> = {};
         const env = space.space.env || {};
 
         for (const [key, value] of Object.entries(env)) {

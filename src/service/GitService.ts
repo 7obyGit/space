@@ -34,10 +34,14 @@ export class GitService {
      */
     public async isSameRepo(pathA: string, pathB: string): Promise<boolean> {
         const rootA = await this.getGitRoot(pathA);
-        if (!rootA) { return false; }
+        if (!rootA) {
+            return false;
+        }
 
         const rootB = await this.getGitRoot(pathB);
-        if (!rootB) { return false; }
+        if (!rootB) {
+            return false;
+        }
 
         return rootA === rootB;
     }
