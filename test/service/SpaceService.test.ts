@@ -39,6 +39,7 @@ describe("SpaceService", () => {
             delete: vi.fn(),
             isFile: vi.fn(),
             copy: vi.fn().mockResolvedValue(Result.success(undefined)),
+            write: vi.fn(),
         };
         mockPathService = {
             join: vi.fn((...args) => args.join("/")),
@@ -405,6 +406,35 @@ describe("SpaceService", () => {
             const savedContent = mockJsonService.save.mock.calls[0][1];
             expect(savedContent.space.source.type).toBe("git");
             expect(savedContent.space.source.url).toBe(url);
+        });
+    });
+
+    describe("scratch", () => {
+        it("should create an empty scratch space with a README", async () => {
+            mockJsonService.save.mockResolvedValue(Result.success(undefined));
+            mockFileService.write.mockResolvedValue(Result.success(undefined));
+
+            const { workspacePath, readmePath } = await spaceService.scratch();
+
+            expect(workspacePath).toContain("/tmp/space/");
+            expect(workspacePath).toContain("scratch.code-workspace");
+            expect(readmePath).toContain("/work/README.md");
+
+            expect(mockFileService.createDirectory).toHaveBeenCalledWith(
+                expect.stringContaining("/work"),
+            );
+            expect(mockFileService.write).toHaveBeenCalledWith(
+                readmePath,
+                expect.stringContaining("Scratch Space"),
+            );
+            expect(mockJsonService.save).toHaveBeenCalled();
+            const savedContent = mockJsonService.save.mock.calls[0][1];
+            expect(savedContent.folders).toContainEqual({
+                path: expect.stringContaining("/work"),
+            });
+            expect(savedContent.space.scripts["workspace-info"]).toBe(
+                "space info",
+            );
         });
     });
 });

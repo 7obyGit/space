@@ -28,5 +28,6 @@ See [docs/installation.md](docs/installation.md) for more details.
 - `space env`: View resolved environment variables for the active space. See [docs/env.md](docs/env.md) for details.
 - `space init`: Initialize a new space in the current directory.
 - `space clone`: Create a temporary scratch space from a Git repo or directory. See [docs/scratch.md](docs/scratch.md) for details.
+- `space scratch`: Create a clean slate temporary scratch space. See [docs/scratch.md](docs/scratch.md) for details.
 - **Scripts & Hooks**: Support for custom scripts and hooks in workspace files. See [docs/scripts.md](docs/scripts.md) for details.
 - **Relative Path Support**: Workspace files automatically use relative paths for folders and attached files when possible, making them portable across different machines and repository clones.

@@ -4,13 +4,19 @@ Scratch spaces provide a temporary workspace that is not saved permanently in yo
 
 ## Creating a Scratch Space
 
-To create a new scratch space, run:
+To create a new scratch space from a Git repository or local directory, run:
 
 ```bash
 space clone [url]
 ```
 
-### How it works:
+To create a completely clean slate scratch space, run:
+
+```bash
+space scratch
+```
+
+### How `space clone` works:
 
 1. **Detection**: If a `url` is provided, `space` uses it as the source. Otherwise, it checks if the current working directory is part of a Git repository.
 2. **Copying**:
@@ -21,22 +27,18 @@ space clone [url]
 5. **Metadata**: Information about the source (Git URL or local path) is saved in the `space` section of the workspace file.
 6. **Automatic Open**: The new scratch workspace is automatically opened in a new VS Code window.
 
+### How `space scratch` works:
+
+1. **Initialization**: `space` creates a new temporary directory in `/tmp/space/<uuid>/`.
+2. **Setup**:
+    - A `work` folder is created as the primary workspace folder.
+    - A `README.md` is generated inside the `work` folder with instructions and information about the scratch space.
+3. **Workspace Generation**: A new `.code-workspace` file is generated, including the `work` folder and an `attached-files` folder.
+4. **Automatic Open**: The new scratch workspace and the `README.md` file are automatically opened in VS Code.
+
 ## Using Scratch Spaces
 
-Once inside a scratch space, you can use all standard `space` commands. Scratch spaces come pre-configured with useful helper scripts.
-
-### Helper Scripts
-
-You can run common commands using `space run <name>`:
-
-- `space run workspace-edit`: Open the workspace file for editing
-- `space run workspace-info`: Show information about the scratch space
-- `space run workspace-attached`: Open the attached files folder in VS Code
-- `space run workspace-save`: Show instructions on how to save the scratch space permanently
-- `space run git-status`: Run `git status`
-- `space run npm-install`: Run `npm install`
-- `space run npm-test`: Run `npm test`
-- `space run npm-run`: Run `npm run`
+Once inside a scratch space, you can use all standard `space` commands.
 
 ## Cleanup
 

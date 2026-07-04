@@ -336,6 +336,81 @@ export class SpaceService {
         return workspaceFilePath;
     }
 
+    public async scratch(): Promise<{
+        workspacePath: TFilePath;
+        readmePath: TFilePath;
+    }> {
+        const uuid = randomUUID();
+        const tmpDir = `/tmp/space/${uuid}` as TDirectoryPath;
+        const workPath = this.pathService.join(
+            tmpDir,
+            "work",
+        ) as TDirectoryPath;
+        const attachedFilesPath = this.pathService.join(
+            tmpDir,
+            "attached-files",
+        ) as TDirectoryPath;
+
+        await this.fileService.createDirectory(tmpDir);
+        await this.fileService.createDirectory(workPath);
+        await this.fileService.createDirectory(attachedFilesPath);
+
+        const readmePath = this.pathService.join(
+            workPath,
+            "README.md",
+        ) as TFilePath;
+        const readmeContent = `# Scratch Space
+
+This is a temporary scratch space created by \`space scratch\`.
+You can use this space to quickly try out new commands, experiments, or prototypes.
+
+## What can I do here?
+- Run \`npm init\` or \`npm create ...\` (e.g., \`npx create-react-app .\`) to start a new project.
+- Create files and folders to test snippets.
+
+## Cleanup
+This directory is located in \`/tmp/space/\` and will be deleted on reboot or can be manually removed.
+`;
+        await this.fileService.write(readmePath, readmeContent);
+
+        const workspaceFilePath = this.pathService.join(
+            tmpDir,
+            "scratch.code-workspace",
+        ) as TFilePath;
+
+        const workspaceContent: ISavedSpace = {
+            folders: [
+                { path: workPath },
+                { path: attachedFilesPath, name: "Attached Files" },
+            ],
+            settings: {
+                "window.title": `\${dirty}\${activeEditorShort} - Scratch (${uuid})`,
+            },
+            space: {
+                name: `scratch-${uuid}`,
+                attachedFiles: [workspaceFilePath],
+                lastUpdated: new Date().toISOString(),
+                scripts: this.getScratchScripts(),
+            },
+        };
+
+        await this.jsonService.save(workspaceFilePath, workspaceContent);
+
+        const workspaceLinkPath = this.pathService.join(
+            attachedFilesPath,
+            "scratch.code-workspace",
+        );
+        await this.linkService.create({
+            from: workspaceLinkPath,
+            to: workspaceFilePath,
+        });
+
+        return {
+            workspacePath: workspaceFilePath,
+            readmePath,
+        };
+    }
+
     private getScratchScripts(): ISpaceScripts {
         return {};
     }
