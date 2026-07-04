@@ -16,7 +16,7 @@ export class AppService {
 
     public async getVersion(): Promise<TVersion> {
         // Resolves package.json relative to this file's location
-        const currentFilePath = fileURLToPath(import .meta.url);
+        const currentFilePath = fileURLToPath(import.meta.url);
         const currentDirPath = dirname(currentFilePath);
         const path: TFilePath = this.pathService.join(
             currentDirPath,

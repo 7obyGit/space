@@ -18,40 +18,42 @@ npm install -g @7obygit/space
 ## 🚀 Getting Started
 
 1. **Initialize a space**: Navigate to your project directory and run:
-   ```bash
-   space init
-   ```
+
+    ```bash
+    space init
+    ```
 
 2. **Open in VS Code**: Launch your dynamic workspace:
-   ```bash
-   space open
-   ```
+
+    ```bash
+    space open
+    ```
 
 3. **Add folders**: Add the current directory or other paths to your space:
-   ```bash
-   space add .
-   ```
+    ```bash
+    space add .
+    ```
 
 ## 🛠 Commands
 
-| Command | Description |
-| :--- | :--- |
-| `space` | Show information about the current active space (alias for `info`) |
-| `space add [path]` | Add a folder to the active space |
-| `space clone <repo>` | Create a temporary scratch space from a Git repo |
-| `space config` | Output all loaded config as JSON |
-| `space create <name>` | Create a new space |
-| `space delete <name>` | Delete a space |
-| `space env` | Show environment variables for the active space |
-| `space info` | Show information about the current active space |
-| `space init` | Initialize a new space in the current directory |
-| `space list` | List all available spaces |
-| `space open` | Open the active workspace in VS Code |
-| `space pop` | Remove the first folder from the active space |
-| `space remove <path>` | Remove a folder from the active space |
-| `space run <script>` | Run a script defined in the active workspace file |
-| `space scratch` | Create a clean slate scratch space |
-| `space use <name>` | Switch to a different workspace |
+| Command               | Description                                                        |
+| :-------------------- | :----------------------------------------------------------------- |
+| `space`               | Show information about the current active space (alias for `info`) |
+| `space add [path]`    | Add a folder to the active space                                   |
+| `space clone <repo>`  | Create a temporary scratch space from a Git repo                   |
+| `space config`        | Output all loaded config as JSON                                   |
+| `space create <name>` | Create a new space                                                 |
+| `space delete <name>` | Delete a space                                                     |
+| `space env`           | Show environment variables for the active space                    |
+| `space info`          | Show information about the current active space                    |
+| `space init`          | Initialize a new space in the current directory                    |
+| `space list`          | List all available spaces                                          |
+| `space open`          | Open the active workspace in VS Code                               |
+| `space pop`           | Remove the first folder from the active space                      |
+| `space remove <path>` | Remove a folder from the active space                              |
+| `space run <script>`  | Run a script defined in the active workspace file                  |
+| `space scratch`       | Create a clean slate scratch space                                 |
+| `space use <name>`    | Switch to a different workspace                                    |
 
 Run `space --help` or `space <command> --help` for more details on specific options.
 
