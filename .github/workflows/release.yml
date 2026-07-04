@@ -33,6 +33,7 @@ jobs:
                   registry-url: "https://registry.npmjs.org"
 
             - run: npm ci
+            - run: npm run type-check
             - run: npm run lint
             - run: npm run format:check
             - run: npm test
