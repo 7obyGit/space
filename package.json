@@ -42,11 +42,11 @@
     "devDependencies": {
         "@semantic-release/exec": "^6.0.3",
         "@semantic-release/github": "^11.0.1",
-        "@semantic-release/npm": "^12.0.1",
+        "@semantic-release/npm": "^13.1.5",
         "@types/marked-terminal": "^6.1.1",
         "@types/node": "^25.9.2",
         "prettier": "^3.9.1",
-        "semantic-release": "^24.2.3",
+        "semantic-release": "^25.0.5",
         "tslint": "^5.20.1",
         "tsx": "^4.22.4",
         "typescript": "^6.0.3",
