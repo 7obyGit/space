@@ -34,7 +34,10 @@ export class HelpCommand extends BaseCommand {
 
         // Calculate max width for command paths (excluding binary name)
         const commandInfos = commands.map((d) => {
-            let commandUsage = d.usage.replace(new RegExp(`^${binaryName} `), "");
+            let commandUsage = d.usage.replace(
+                new RegExp(`^${binaryName} `),
+                "",
+            );
             if (d.options.some((o) => o.preferredName === "--json")) {
                 commandUsage += " [--json]";
             }
@@ -44,7 +47,8 @@ export class HelpCommand extends BaseCommand {
             };
         });
 
-        const maxWidth = Math.max(...commandInfos.map((c) => c.usage.length)) + 2;
+        const maxWidth =
+            Math.max(...commandInfos.map((c) => c.usage.length)) + 2;
 
         for (const info of commandInfos) {
             const paddedUsage = info.usage.padEnd(maxWidth);
