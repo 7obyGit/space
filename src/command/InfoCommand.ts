@@ -6,10 +6,7 @@ import { PathService } from "../service/fs/PathService.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
 
-@Command(
-    [["info"], [BaseCommand.Default]],
-    "Show information about the current active space",
-)
+@Command([["info"], BaseCommand.Default], "Show information about the current active space")
 @singleton()
 export class InfoCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);

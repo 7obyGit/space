@@ -38,7 +38,6 @@ npm install -g @7obygit/space
 
 | Command               | Description                                                        |
 | :-------------------- | :----------------------------------------------------------------- |
-| `space`               | Show information about the current active space (alias for `info`) |
 | `space init`          | Initialize a new space in the current directory                    |
 | `space create <name>` | Create a new space                                                 |
 | `space delete <name>` | Delete a space                                                     |

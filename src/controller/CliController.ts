@@ -15,6 +15,7 @@ import { RemoveCommand } from "../command/RemoveCommand.js";
 import { RunCommand } from "../command/RunCommand.js";
 import { ScratchCommand } from "../command/ScratchCommand.js";
 import { UseCommand } from "../command/UseCommand.js";
+import { HelpCommand } from "../command/HelpCommand.js";
 
 @singleton()
 export class CliController {
@@ -40,7 +41,7 @@ export class CliController {
         cli.register(DeleteCommand);
         cli.register(EnvCommand);
         cli.register(ConfigCommand);
-        cli.register(Builtins.HelpCommand);
+        cli.register(HelpCommand);
         cli.register(Builtins.VersionCommand);
 
         await cli.runExit(process.argv.slice(2));
