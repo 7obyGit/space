@@ -59,7 +59,7 @@
         "clipanion": "^4.0.0-rc.4",
         "husky": "^9.1.7",
         "json5": "^2.2.3",
-        "marked": "^15.0.12",
+        "marked": "^18.0.6",
         "marked-terminal": "^7.3.0",
         "reflect-metadata": "^0.2.2",
         "tsyringe": "^4.10.0"
