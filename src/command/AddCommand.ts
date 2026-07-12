@@ -5,6 +5,7 @@ import { Command } from "../decorators/Command.js";
 import { PathService } from "../service/fs/PathService.js";
 import { LoggerService } from "../service/LoggerService.js";
 import { SpaceService } from "../service/SpaceService.js";
+import { FileService } from "../service/fs/FileService.js";
 
 @Command("add", "Add a folder to the active space")
 @singleton()
@@ -12,6 +13,7 @@ export class AddCommand extends BaseCommand {
     private spaceService = container.resolve(SpaceService);
     private loggerService = container.resolve(LoggerService);
     private pathService = container.resolve(PathService);
+    private fileService = container.resolve(FileService);
 
     public folderPath = Option.String({ name: "path", required: false });
 
@@ -27,8 +29,15 @@ export class AddCommand extends BaseCommand {
             ? this.pathService.toAbsolute(this.folderPath)
             : this.pathService.getCurrentWorkingDirectory();
         const displayPath = this.pathService.formatDisplayPath(targetPath);
+
+        const entityType: string = (await this.fileService.isDirectory(
+            targetPath,
+        ))
+            ? "folder"
+            : "file";
+
         this.loggerService.info(
-            `Added folder ${chalk.cyan(chalk.bold(displayPath))} to active space.`,
+            `Added ${entityType} ${chalk.cyan(chalk.bold(displayPath))} to active space.`,
         );
     }
 }
