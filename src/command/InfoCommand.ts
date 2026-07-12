@@ -46,47 +46,47 @@ export class InfoCommand extends BaseCommand {
         );
 
         const combinedItems: { name: string; path: string }[] = [];
-
-        if (active.folders && active.folders.length > 0) {
-            active.folders
-                .filter((f) => (f as any).name !== "Attached Files")
-                .forEach((folder) => {
-                    const folderPath =
-                        (folder as any).path ||
-                        (folder as any).uri ||
-                        "Unknown";
-                    const folderName =
-                        folder.name || this.pathService.getName(folderPath);
-                    combinedItems.push({
-                        name: `${chalk.blue("●")} ${folderName}`,
+ 
+         if (active.folders && active.folders.length > 0) {
+             active.folders
+                 .filter((f) => (f as any).name !== "Attached Files")
+                 .forEach((folder) => {
+                     const folderPath =
+                         (folder as any).path ||
+                         (folder as any).uri ||
+                         "Unknown";
+                     const folderName =
+                         folder.name || this.pathService.getName(folderPath);
+                     combinedItems.push({
+                        name: folderName,
                         path: folderPath,
                     });
-                });
-        }
-
-        if (
-            active.space.attachedFiles &&
-            active.space.attachedFiles.length > 0
-        ) {
-            active.space.attachedFiles.forEach((file) => {
-                combinedItems.push({
-                    name: `${chalk.white("○")} ${this.pathService.getName(file)}`,
+                 });
+         }
+ 
+         if (
+             active.space.attachedFiles &&
+             active.space.attachedFiles.length > 0
+         ) {
+             active.space.attachedFiles.forEach((file) => {
+                 combinedItems.push({
+                    name: this.pathService.getName(file),
                     path: file,
                 });
-            });
-        }
-
-        if (combinedItems.length > 0) {
-            this.loggerService.info(chalk.white.bold("\n  Workspace Content:"));
-            let table = "| Name | Path |\n";
-            table += "| --- | --- |\n";
-            combinedItems.forEach((item) => {
-                const displayPath = this.pathService.formatDisplayPath(
-                    item.path,
-                );
-                table += `| ${chalk.green(item.name)} | ${chalk.cyan(displayPath)} |\n`;
-            });
-            this.loggerService.info(table);
-        }
+             });
+         }
+ 
+         if (combinedItems.length > 0) {
+             this.loggerService.info(chalk.white.bold("\n  Workspace Content:"));
+             let table = "| Name | Path |\n";
+             table += "| --- | --- |\n";
+             combinedItems.forEach((item) => {
+                 const displayPath = this.pathService.formatDisplayPath(
+                     item.path,
+                 );
+                 table += `| ${chalk.green(item.name)} | ${chalk.cyan(displayPath)} |\n`;
+             });
+             this.loggerService.info(table);
+         }
     }
 }
