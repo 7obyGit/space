@@ -26,7 +26,7 @@ export class ListCommand extends BaseCommand {
             return;
         }
 
-        this.loggerService.info(chalk.cyan.bold("\n🚀  Available Spaces\n"));
+        this.loggerService.info(chalk.cyan.bold("🚀  Available Spaces"));
 
         if (spaces.length === 0) {
             this.loggerService.info(chalk.yellow("  No spaces found."));
@@ -49,6 +49,5 @@ export class ListCommand extends BaseCommand {
         });
 
         this.loggerService.info(table);
-        this.loggerService.info("");
     }
 }

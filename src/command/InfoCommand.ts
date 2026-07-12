@@ -29,12 +29,12 @@ export class InfoCommand extends BaseCommand {
         }
 
         if (!active) {
-            this.loggerService.info(chalk.yellow("\n  No active space found."));
+            this.loggerService.info(chalk.yellow("  No active space found."));
             return;
         }
 
         this.loggerService.info(
-            chalk.cyan.bold("\n🚀  Current Active Space\n"),
+            chalk.cyan.bold("🚀  Current Active Space"),
         );
 
         const displayName = chalk.bold(active.space.name);
@@ -74,7 +74,5 @@ export class InfoCommand extends BaseCommand {
             });
             this.loggerService.info(filesTable);
         }
-
-        this.loggerService.info("");
     }
 }

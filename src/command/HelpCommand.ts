@@ -26,11 +26,11 @@ export class HelpCommand extends BaseCommand {
 
         // Usage
         this.loggerService.log(
-            `\n  ${chalk.bold("Usage:")} ${chalk.yellow("$")} ${chalk.cyan(binaryName)} ${chalk.yellow("<command>")}\n`,
+            `  ${chalk.bold("Usage:")} ${chalk.yellow("$")} ${chalk.cyan(binaryName)} ${chalk.yellow("<command>")}`,
         );
 
         // Commands section header
-        this.loggerService.log(`  ${chalk.bold.magenta("Commands:")}\n`);
+        this.loggerService.log(`\n  ${chalk.bold.magenta("Commands:")}`);
 
         // Calculate max width for command paths (excluding binary name)
         const commandInfos = commands.map((d) => {
@@ -59,7 +59,7 @@ export class HelpCommand extends BaseCommand {
 
         // Footer
         this.loggerService.log(
-            `\n  ${chalk.gray("Tip: Use")} ${chalk.cyan(`${binaryName} <command> --help`)} ${chalk.gray("for detailed info.")}\n`,
+            `\n  ${chalk.gray("Tip: Use")} ${chalk.cyan(`${binaryName} <command> --help`)} ${chalk.gray("for detailed info.")}`,
         );
     }
 }
