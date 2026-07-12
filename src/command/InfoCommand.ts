@@ -45,34 +45,48 @@ export class InfoCommand extends BaseCommand {
             `  ${chalk.yellow("●")} ${displayName} - ${chalk.cyan(displayPath)}`,
         );
 
+        const combinedItems: { name: string; path: string }[] = [];
+
         if (active.folders && active.folders.length > 0) {
-            this.loggerService.info(chalk.white.bold("\n  Folders:"));
-            let foldersTable = "| Name | Path |\n";
-            foldersTable += "| --- | --- |\n";
-            active.folders.forEach((folder) => {
-                const folderPath =
-                    (folder as any).path || (folder as any).uri || "Unknown";
-                const displayFolderPath =
-                    this.pathService.formatDisplayPath(folderPath);
-                const folderName = folder.name || "-";
-                foldersTable += `| ${chalk.green(folderName)} | ${chalk.cyan(displayFolderPath)} |\n`;
-            });
-            this.loggerService.info(foldersTable);
+            active.folders
+                .filter((f) => (f as any).name !== "Attached Files")
+                .forEach((folder) => {
+                    const folderPath =
+                        (folder as any).path ||
+                        (folder as any).uri ||
+                        "Unknown";
+                    const folderName =
+                        folder.name || this.pathService.getName(folderPath);
+                    combinedItems.push({
+                        name: `${chalk.blue("●")} ${folderName}`,
+                        path: folderPath,
+                    });
+                });
         }
 
         if (
             active.space.attachedFiles &&
             active.space.attachedFiles.length > 0
         ) {
-            this.loggerService.info(chalk.white.bold("\n  Attached Files:"));
-            let filesTable = "| File Path |\n";
-            filesTable += "| --- |\n";
             active.space.attachedFiles.forEach((file) => {
-                const displayFilePath =
-                    this.pathService.formatDisplayPath(file);
-                filesTable += `| ${chalk.cyan(displayFilePath)} |\n`;
+                combinedItems.push({
+                    name: `${chalk.white("○")} ${this.pathService.getName(file)}`,
+                    path: file,
+                });
             });
-            this.loggerService.info(filesTable);
+        }
+
+        if (combinedItems.length > 0) {
+            this.loggerService.info(chalk.white.bold("\n  Workspace Content:"));
+            let table = "| Name | Path |\n";
+            table += "| --- | --- |\n";
+            combinedItems.forEach((item) => {
+                const displayPath = this.pathService.formatDisplayPath(
+                    item.path,
+                );
+                table += `| ${chalk.green(item.name)} | ${chalk.cyan(displayPath)} |\n`;
+            });
+            this.loggerService.info(table);
         }
     }
 }
