@@ -31,7 +31,7 @@ export class EnvCommand extends BaseCommand {
 
         this.loggerService.info(
             chalk.cyan.bold(
-                `\n🌍  Environment Variables for '${activeSpace.space.name}'\n`,
+                `🌍  Environment Variables for '${activeSpace.space.name}'`,
             ),
         );
 
@@ -51,6 +51,5 @@ export class EnvCommand extends BaseCommand {
         }
 
         this.loggerService.info(table);
-        this.loggerService.info("");
     }
 }

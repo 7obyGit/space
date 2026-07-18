@@ -6,15 +6,41 @@ import { singleton } from "tsyringe";
 @singleton()
 export class LoggerService {
     constructor() {
-        marked.setOptions({
-            renderer: new TerminalRenderer({
-                tableOptions: {
-                    style: {
-                        head: ["yellow", "bold"],
-                    },
+        const renderer = new TerminalRenderer({
+            tableOptions: {
+                chars: {
+                    mid: "─",
+                    "left-mid": "├",
+                    "mid-mid": "┼",
+                    "right-mid": "┤",
                 },
-            }) as any,
-        });
+                style: {
+                    head: ["yellow", "bold"],
+                    "padding-left": 1,
+                    "padding-right": 1,
+                },
+            },
+        }) as any;
+
+        const originalTable = renderer.table.bind(renderer);
+        renderer.table = (header: any, body: any) => {
+            const tableStr = originalTable(header, body);
+            const lines = tableStr.split("\n");
+            let midLineCount = 0;
+            return lines
+                .filter((line: string) => {
+                    const cleanLine = line.replace(/\u001b\[[0-9;]*m/g, "");
+                    // Separator lines between rows start with '├' when using default box characters
+                    if (cleanLine.startsWith("├")) {
+                        midLineCount++;
+                        return midLineCount === 1; // Only keep the first separator (after header)
+                    }
+                    return true;
+                })
+                .join("\n");
+        };
+
+        marked.setOptions({ renderer });
     }
 
     private render(text: string): string {
