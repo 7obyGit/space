@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { PathService } from "../../../src/service/fs/PathService.js";
 
 describe("PathService", () => {

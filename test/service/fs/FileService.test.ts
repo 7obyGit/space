@@ -25,8 +25,8 @@ describe("FileService", () => {
         container.clearInstances();
 
         mockPathService = {
-            toAbsolute: vi.fn((p) => p),
-            getParent: vi.fn((p) => "parent"),
+            toAbsolute: vi.fn((_p) => _p),
+            getParent: vi.fn((_p) => "parent"),
             join: vi.fn((...args) => args.join("/")),
         };
 
