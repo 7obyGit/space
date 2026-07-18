@@ -33,6 +33,11 @@ export class AppService {
             );
         }
 
-        return content.getValue()?.version! as TVersion;
+        const packageInfo = content.getValue();
+        if (packageInfo === undefined) {
+            throw Error("Package version is missing from package.json");
+        }
+
+        return packageInfo.version as TVersion;
     }
 }

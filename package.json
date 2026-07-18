@@ -10,8 +10,8 @@
         "prepare": "husky",
         "build": "tsc",
         "dev": "tsx src/index.ts",
-        "lint": "tslint -p tsconfig.json",
-        "lint:fix": "tslint -p tsconfig.json --fix",
+        "lint": "oxlint",
+        "lint:fix": "oxlint --fix",
         "type-check": "tsc --noEmit",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
@@ -48,9 +48,9 @@
         "@types/node": "^26.1.0",
         "prettier": "^3.9.4",
         "semantic-release": "^25.0.5",
-        "tslint": "^6.1.3",
         "tsx": "^4.23.0",
-        "typescript": "^6.0.3",
+        "typescript": "^7.0.2",
+        "oxlint": "^1.74.0",
         "vitest": "^4.1.9"
     },
     "dependencies": {
