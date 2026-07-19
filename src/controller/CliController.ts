@@ -1,5 +1,5 @@
 import { Builtins, Cli } from "clipanion";
-import { singleton } from "tsyringe";
+import { container, singleton } from "tsyringe";
 import { AddCommand } from "../command/AddCommand.js";
 import { CloneCommand } from "../command/CloneCommand.js";
 import { ConfigCommand } from "../command/ConfigCommand.js";
@@ -16,14 +16,16 @@ import { RunCommand } from "../command/RunCommand.js";
 import { ScratchCommand } from "../command/ScratchCommand.js";
 import { UseCommand } from "../command/UseCommand.js";
 import { HelpCommand } from "../command/HelpCommand.js";
+import { AppService } from "../service/AppService.js";
 
 @singleton()
 export class CliController {
     public async run() {
+        const appService = container.resolve(AppService);
         const cli = new Cli({
             binaryLabel: "space",
             binaryName: "space",
-            binaryVersion: "0.0.1",
+            binaryVersion: await appService.getVersion(),
         });
 
         cli.register(InfoCommand);
